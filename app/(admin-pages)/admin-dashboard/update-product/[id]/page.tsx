@@ -7,13 +7,13 @@ import useProductStore from "@/zustand/useProductStore";
 import { Timestamp } from "firebase/firestore";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 const emptyTimestamp = new Timestamp(0, 0);
 
-const UpdateProductContent = ({ params }: { params: { id: string } }) => {
+const UpdateProductContent = ({ params }: { params: Promise<{ id: string }> }) => {
   const navigate = useRouter();
   const { product, loading, fetchSingleProduct, updateProduct } = useProductStore();
   const { categories, fetchCategories } = useCategoryStore();
@@ -69,14 +69,18 @@ const UpdateProductContent = ({ params }: { params: { id: string } }) => {
         storageFileId: product.storageFileId
       });
       const findCategory = categories.find(c => c.name == product.category);
-      findCategory && setSelectedCategory(findCategory)
+      if(findCategory){
+        setSelectedCategory(findCategory)
+      }
     }
   }, [product]);
 
   // get sub category
-  const handleGetSubCategory = (value:string) => {
+  const handleGetSubCategory = (value: string) => {
     const findCategory = categories.find(c => c.name == value);
-    findCategory && setSelectedCategory(findCategory)
+    if(findCategory){
+      setSelectedCategory(findCategory)
+    }
   }
 
   const handleImageUpload = async (files: FileList | null) => {
@@ -115,8 +119,8 @@ const UpdateProductContent = ({ params }: { params: { id: string } }) => {
   };
 
   const handleUpdate = async () => {
-    if (params.id) {
-      await updateProduct(params.id, updatedProduct);
+    if (projectId) {
+      await updateProduct(projectId, updatedProduct);
       toast.success('Product Updated Successfully');
       navigate.push('/admin-dashboard');
     }

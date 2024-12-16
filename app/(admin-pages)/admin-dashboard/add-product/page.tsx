@@ -65,7 +65,9 @@ const AddProductPage = () => {
   // get sub category
   const handleGetSubCategory = (value:string) => {
     const findCategory = categories.find(c => c.name == value);
-    findCategory && setSelectedCategory(findCategory)
+    if(findCategory){
+      setSelectedCategory(findCategory)
+    }
   }
 
   // Add Product Function

@@ -18,10 +18,7 @@ const CategoryDetail = () => {
       deleteCategory(item.id);
       toast.success("Product Deleted Successfully");
     }
-  };
-
-  console.log(categories);
-  
+  };  
 
   return (
     <div>

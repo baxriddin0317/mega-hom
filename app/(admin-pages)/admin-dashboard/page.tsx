@@ -30,7 +30,7 @@ const Admin = () => {
         setUser(JSON.parse(userString));
       }else {
         setTimeout(() => {
-          router.push('/login');
+          handleRoute('/login');
         }, 200);
       }
       
@@ -39,9 +39,13 @@ const Admin = () => {
 
   useEffect(() => {
     if (user && user.role !== 'admin') {
-      router.push('/');
+      handleRoute('/');
     }
   }, [user]);
+
+  const handleRoute = (path:string) => {
+    router.push(path);
+  }
   
   if(!user){
     return <div className="flex items-center justify-center h-screen w-screen">
