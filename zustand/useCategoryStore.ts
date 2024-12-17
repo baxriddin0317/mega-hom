@@ -41,7 +41,8 @@ const useCategoryStore = create<CategoryStoreI>((set) => ({
         set({
           category: {
             id, 
-            name: categoryData.name
+            name: categoryData.name,
+            subcategory: categoryData.subcategory
           } as CategoryI,
           loading: false
         });

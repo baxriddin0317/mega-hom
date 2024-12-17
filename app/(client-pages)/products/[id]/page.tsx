@@ -1,99 +1,71 @@
 "use client"
 import Card from '@/components/client/Card';
 import { IconChevron } from '@/components/icons';
+import Loader from '@/components/Loader';
+import useCategoryStore from '@/zustand/useCategoryStore';
+import useProductStore from '@/zustand/useProductStore';
 import Link from 'next/link';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
-const cards = [
-  {
-    img: "bestSellers/08DLX.jpg",
-    title: "3L Grafin va 150ML Fyujer",
-    currentPrice: 350000,
-    prePrice: 450000,
-  },
-  {
-    img: "bestSellers/58278M.jpg",
-    title: "40x28 Dekorativ temir lagan",
-    currentPrice: 815000,
-    prePrice: 875000,
-  },
-  {
-    img: "bestSellers/9PCGranite2.jpg",
-    title: "9PC Granit",
-    currentPrice: 1250000,
-    prePrice: 1350000,
-  },
-  {
-    img: "bestSellers/CHEMODAN.jpg",
-    title: "Hoffmayer 72PC",
-    currentPrice: 400000,
-    prePrice: 550000,
-  },
-  {
-    img: "bestSellers/DOMTIME205F.jpg",
-    title: "Kreslo 205",
-    currentPrice: 1650000,
-    prePrice: 1800000,
-  },
-  {
-    img: "bestSellers/qozon1.JPG",
-    title: "Granit qozon",
-    currentPrice: 490000,
-    prePrice: 650000,
-  },
-  {
-    img: "bestSellers/Termos096JP.jpg",
-    title: "Termos 096JP",
-    currentPrice: 400000,
-    prePrice: 550000,
-  },
-  {
-    img: "bestSellers/DOMTIME363F.jpg",
-    title: "Kreslo 363F",
-    currentPrice: 1450000,
-    prePrice: 1550000,
-  },
-  // Add more cards as needed
-];
-
-const categories = ["Qozon", "Tavoq", "Tarelka"];
-
-const Products = () => {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+const Products = ({ params }: { params: Promise<{ id: string }> }) => {
+  const [projectId, setProjectId] = useState("");
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
+  const { category, fetchSingleCategory } = useCategoryStore()
+  const { products, fetchProducts } = useProductStore()
+  
+  useEffect(() => {
+    const getId = async () => {
+      const { id } = await params;
+      setProjectId(id)
+    }
+    getId()
+  }, [params])
+ 
+  useEffect(() => {
+    fetchSingleCategory(projectId);
+    fetchProducts()
+  }, [fetchSingleCategory, fetchProducts, projectId]);
   
   const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
+    setSelectedSubCategory(category);
   };
 
+  if(category == null){
+    return <div className="flex items-center justify-center h-40">
+      <Loader />
+    </div>
+  }
+  
   return (
     <div className="max-w-7xl mx-auto pt-4 px-4 sm:px-6">
       <div className="pb-10">
-        <h2 className="text-3xl sm:text-4xl font-bold pb-5">Category name</h2>
+        <h2 className="text-3xl sm:text-4xl font-bold pb-5 capitalize">{category.name}</h2>
 
         <div className="flex items-center gap-3 flex-wrap pb-5">
-          {categories.map((category) => (
+          {category.subcategory.map((c,id) => (
             <button
-              key={category}
-              className={`rounded-md transition-all ease-in-out py-1 px-4 ${
-                selectedCategory === category
-                  ? "bg-gray-300"
+              key={id}
+              className={`rounded-md transition-all ease-in-out py-1 px-4 capitalize ${
+                selectedSubCategory === c
+                  ? "bg-brand text-white"
                   : "bg-gray-200 hover:bg-gray-300"
               }`}
-              onClick={() => handleCategoryChange(category)}
+              onClick={() => handleCategoryChange(c)}
             >
-              {category}
+              {c}
             </button>
           ))}
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6 lg:gap-5">
-          {cards.map((card, index) => (
+          {products.filter(product => product.category === category?.name).map((card, index) => (
             <Card
-              key={index}
-              img={card.img}
+              key={card.id}
+              img={card.productImageUrl}
               title={card.title}
-              currentPrice={card.currentPrice}
-              prePrice={card.prePrice}
+              currentPrice={card.price}
+              prePrice={card.price + 100}
+              href={`/product/${card.id}`}
             />
           ))}
         </div>

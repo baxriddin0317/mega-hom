@@ -1,5 +1,5 @@
 "use client"
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import { Swiper as SwiperType } from 'swiper';
@@ -7,6 +7,8 @@ import { IconChevron } from "../icons";
 
 import "swiper/css";
 import Card from "./Card";
+import useProductStore from "@/zustand/useProductStore";
+import Loader from "../Loader";
 
 const cards = [
   {
@@ -61,6 +63,20 @@ const cards = [
 
 const BestSellers = () => {
   const swiperRef = useRef<SwiperType>(null);
+  const { loading, products, fetchProducts } = useProductStore();
+
+  useEffect(() => {
+    fetchProducts()
+  }, [fetchProducts]);
+
+  if (loading || products.length == 0) {
+    return (
+      <div className="flex items-center justify-center h-40">
+        <Loader />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6">
       <h2 className="text-3xl sm:text-4xl font-bold pb-5">Best Sellers</h2>
@@ -88,13 +104,14 @@ const BestSellers = () => {
           modules={[Navigation, Autoplay]}
           className="swiperBestSellers !static"
         >
-          {cards.map((card, index) => (
+          {products.map((card, index) => (
             <SwiperSlide key={index} className="!flex !flex-col !h-auto">
               <Card
-                img={card.img}
+                img={card.productImageUrl}
                 title={card.title}
-                currentPrice={card.currentPrice}
-                prePrice={card.prePrice}
+                currentPrice={card.price}
+                prePrice={card.price}
+                href={`/product/${card.id}`}
               />
             </SwiperSlide>
           ))}

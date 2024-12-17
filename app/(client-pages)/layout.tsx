@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Kursiy uz",
+  title: "Mega Home",
   description: "",
 };
 

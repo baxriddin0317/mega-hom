@@ -1,6 +1,6 @@
 "use client"
 import { Swiper, SwiperSlide } from "swiper/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IconChevron } from "../icons";
 import { Autoplay, Navigation } from "swiper/modules";
 import { Swiper as SwiperType } from 'swiper';
@@ -9,69 +9,25 @@ import Card from "./Card";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
-
-interface CardProps {
-  img: string;
-  title: string;
-  currentPrice: number;
-  prePrice: number;
-}
-
-const data = [
-  {
-    img: "bestSellers/08DLX.jpg",
-    title: "3L Grafin va 150ML Fyujer",
-    currentPrice: 350000,
-    prePrice: 450000,
-  },
-  {
-    img: "bestSellers/58278M.jpg",
-    title: "40x28 Dekorativ temir lagan",
-    currentPrice: 815000,
-    prePrice: 875000,
-  },
-  {
-    img: "bestSellers/9PCGranite2.jpg",
-    title: "9PC Granit",
-    currentPrice: 1250000,
-    prePrice: 1350000,
-  },
-  {
-    img: "bestSellers/CHEMODAN.jpg",
-    title: "Hoffmayer 72PC",
-    currentPrice: 400000,
-    prePrice: 550000,
-  },
-  {
-    img: "bestSellers/DOMTIME205F.jpg",
-    title: "Kreslo 205",
-    currentPrice: 1650000,
-    prePrice: 1800000,
-  },
-  {
-    img: "bestSellers/qozon1.JPG",
-    title: "Granit qozon",
-    currentPrice: 490000,
-    prePrice: 650000,
-  },
-  {
-    img: "bestSellers/Termos096JP.jpg",
-    title: "Termos 096JP",
-    currentPrice: 400000,
-    prePrice: 550000,
-  },
-  {
-    img: "bestSellers/DOMTIME363F.jpg",
-    title: "Kreslo 363F",
-    currentPrice: 1450000,
-    prePrice: 1550000,
-  },
-]
+import useProductStore from "@/zustand/useProductStore";
+import Loader from "../Loader";
 
 const NewProducts = () => {
   const swiperRef = useRef<SwiperType>(null);
-  const [cards] = useState<CardProps[]>(data);
+  const { loading, products, fetchProducts } = useProductStore();
+
+  useEffect(() => {
+      fetchProducts()
+    }, [fetchProducts]);
   
+    if (loading || products.length == 0) {
+      return (
+        <div className="flex items-center justify-center h-40">
+          <Loader />
+        </div>
+      );
+    }
+
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6">
       <h2 className="text-3xl sm:text-4xl font-bold pb-5">New Products</h2>
@@ -108,13 +64,14 @@ const NewProducts = () => {
           modules={[Navigation, Autoplay]}
           className="swiperNewProducts !static"
         >
-          {cards.map((card, index) => (
+          {products.map((card, index) => (
             <SwiperSlide key={index}>
               <Card
-                img={card.img}
+                img={card.productImageUrl}
                 title={card.title}
-                currentPrice={card.currentPrice}
-                prePrice={card.prePrice}
+                currentPrice={card.price}
+                prePrice={card.price}
+                href={`/product/${card.id}`}
               />
             </SwiperSlide>
           ))}

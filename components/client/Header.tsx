@@ -1,25 +1,25 @@
 "use client"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { HumburgerIcon, XIcon } from "../icons";
 import Image from "next/image";
-
-interface Navigation {
-  title: string;
-  link: string;
-}
+import useCategoryStore from "@/zustand/useCategoryStore";
+import Loader from "../Loader";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const navigations: Navigation[] = [
-    { title: "Oshxona toplamlari", link: "/products" },
-    { title: "Maishiy texnikalar", link: "/products" },
-    { title: "Chamadonlar", link: "/products" },
-    { title: "Seyflar", link: "/products" },
-    { title: "Office kreslolar", link: "/products" },
-    { title: "Dekorlar", link: "/products" },
-  ];
+  const { categories, fetchCategories } = useCategoryStore()
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
+  if(categories.length == 0){
+    return <div className="flex items-center justify-center h-40">
+      <Loader />
+    </div>
+  }
 
   return (
     <header>
@@ -49,13 +49,13 @@ const Header = () => {
 
             <div className={`absolute md:static top-12 left-0 w-full bg-brand md:max-h-none overflow-hidden transition-all ease-in-out duration-200 ${menuOpen ? "max-h-64" : "max-h-0"}`} >
               <div className="flex flex-col md:flex-row md:items-center justify-between">
-                {navigations.map((navigation, index) => (
+                {categories.map((category) => (
                   <Link
-                    key={index}
-                    href={navigation.link}
+                    key={category.id}
+                    href={`products/${category.id}`}
                     className="flex items-center justify-center gap-1 uppercase text-white transition-all ease-in-out hover:text-white/70 border-b border-transparent hover:border-b hover:border-white font-medium text-xs lg:text-sm p-3"
                   >
-                    <span>{navigation.title}</span>
+                    <span>{category.name}</span>
                   </Link>
                 ))}
               </div>

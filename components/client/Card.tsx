@@ -1,26 +1,28 @@
+import { ImageT } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
 interface CardProps {
-  img: string;
+  img: ImageT[];
   title: string;
   currentPrice: number;
   prePrice: number;
+  href: string;
 }
 
-const Card = ({ img, title, currentPrice, prePrice }: CardProps) => {
+const Card = ({ img, title, currentPrice, prePrice, href }: CardProps) => {
   const formattedCurrentPrice = currentPrice.toLocaleString("en-US");
   const formattedPrePrice = prePrice.toLocaleString("en-US");
 
   return (
     <Link
-      href="/product/1"
+      href={href}
       className="flex flex-col h-full rounded border divide-y overflow-hidden shadow-sm"
     >
       <div className="relative w-full h-44 sm:h-72 shrink-0">
         <Image
-          src={`/${img}`}
+          src={img[0].url ? img[0].url : `/sample.webp`}
           alt={title}
           fill
           className="w-full h-full object-cover"
