@@ -1,7 +1,20 @@
+"use client"
 import Image from 'next/image'
-import React from 'react'
+import React, { useEffect } from 'react'
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 const Delivery = () => {
+  useEffect(() => {
+    AOS.init({
+      easing: 'ease-out-quad',
+      duration: 5000,
+      once: false
+    });
+  }, [])
+  useEffect(() => {
+    AOS.refresh();
+  }, [window.scrollY]);
   return (
     <section className="pt-10 overflow-hidden">
       <div className="relative overflow-hidden bg-brand text-white py-2 sm:py-4">

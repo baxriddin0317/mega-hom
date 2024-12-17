@@ -48,7 +48,7 @@ const Header = () => {
                 {categories.map((category) => (
                   <Link
                     key={category.id}
-                    href={`products/${category.id}`}
+                    href={`/products/${category.id}`}
                     className="flex items-center justify-center gap-1 uppercase text-white transition-all ease-in-out hover:text-white/70 border-b border-transparent hover:border-b hover:border-white font-medium text-xs lg:text-sm p-3"
                   >
                     <span>{category.name}</span>
