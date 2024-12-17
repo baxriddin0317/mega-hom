@@ -58,7 +58,7 @@ const Products = ({ params }: { params: Promise<{ id: string }> }) => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6 lg:gap-5">
-          {products.filter(product => product.category === category?.name).map((card, index) => (
+          {products.filter(product => product.category === category?.name).map((card) => (
             <Card
               key={card.id}
               img={card.productImageUrl}

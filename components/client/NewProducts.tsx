@@ -1,6 +1,6 @@
 "use client"
 import { Swiper, SwiperSlide } from "swiper/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { IconChevron } from "../icons";
 import { Autoplay, Navigation } from "swiper/modules";
 import { Swiper as SwiperType } from 'swiper';

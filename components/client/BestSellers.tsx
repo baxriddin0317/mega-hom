@@ -10,57 +10,6 @@ import Card from "./Card";
 import useProductStore from "@/zustand/useProductStore";
 import Loader from "../Loader";
 
-const cards = [
-  {
-    img: "bestSellers/08DLX.jpg",
-    title: "3L Grafin va 150ML Fyujer",
-    currentPrice: 350000,
-    prePrice: 450000,
-  },
-  {
-    img: "bestSellers/58278M.jpg",
-    title: "40x28 Dekorativ temir lagan",
-    currentPrice: 815000,
-    prePrice: 875000,
-  },
-  {
-    img: "bestSellers/9PCGranite2.jpg",
-    title: "9PC Granit",
-    currentPrice: 1250000,
-    prePrice: 1350000,
-  },
-  {
-    img: "bestSellers/CHEMODAN.jpg",
-    title: "Hoffmayer 72PC",
-    currentPrice: 400000,
-    prePrice: 550000,
-  },
-  {
-    img: "bestSellers/DOMTIME205F.jpg",
-    title: "Kreslo 205",
-    currentPrice: 1650000,
-    prePrice: 1800000,
-  },
-  {
-    img: "bestSellers/qozon1.JPG",
-    title: "Granit qozon",
-    currentPrice: 490000,
-    prePrice: 650000,
-  },
-  {
-    img: "bestSellers/Termos096JP.jpg",
-    title: "Termos 096JP",
-    currentPrice: 400000,
-    prePrice: 550000,
-  },
-  {
-    img: "bestSellers/DOMTIME363F.jpg",
-    title: "Kreslo 363F",
-    currentPrice: 1450000,
-    prePrice: 1550000,
-  },
-];
-
 const BestSellers = () => {
   const swiperRef = useRef<SwiperType>(null);
   const { loading, products, fetchProducts } = useProductStore();
