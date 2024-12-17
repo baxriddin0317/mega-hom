@@ -1,27 +1,37 @@
-"use client"
-import Image from 'next/image'
-import React, { useEffect } from 'react'
-import AOS from 'aos';
-import 'aos/dist/aos.css';
+"use client";
+import Image from "next/image";
+import React, { useEffect } from "react";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const Delivery = () => {
   useEffect(() => {
     AOS.init({
-      easing: 'ease-out-quad',
+      easing: "ease-out-quad",
       duration: 5000,
-      once: false
+      once: false,
     });
-  }, [])
-  useEffect(() => {
-    AOS.refresh();
-  }, [window.scrollY]);
+  }, []);
+
+  useEffect(function mount() {
+    function onScroll() {
+      AOS.refresh();
+    }
+
+    window.addEventListener("scroll", onScroll);
+
+    return function unMount() {
+      window.removeEventListener("scroll", onScroll);
+    };
+  });
   return (
     <section className="pt-10 overflow-hidden">
       <div className="relative overflow-hidden bg-brand text-white py-2 sm:py-4">
         <div className="running-text">
           <span className={`marquee-text text-xl sm:text-2xl`}>
-            O&apos;zbekiston bo&apos;ylab yetkazib berish bepul!!! O&apos;zbekiston bo&apos;ylab
-            yetkazib berish bepul!!! O&apos;zbekiston bo&apos;ylab yetkazib berish bepul!!!
+            O&apos;zbekiston bo&apos;ylab yetkazib berish bepul!!!
+            O&apos;zbekiston bo&apos;ylab yetkazib berish bepul!!!
+            O&apos;zbekiston bo&apos;ylab yetkazib berish bepul!!!
           </span>
         </div>
       </div>
@@ -39,7 +49,7 @@ const Delivery = () => {
         />
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default Delivery
+export default Delivery;
