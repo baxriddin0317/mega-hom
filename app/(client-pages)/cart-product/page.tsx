@@ -5,7 +5,7 @@ import { GoArrowLeft } from "react-icons/go";
 const CartProduct = () => {
   
   return (
-    <main className="bg-body min-h-screen">
+    <main className="bg-body">
       <div className="max-w-7xl mx-auto px-4 lg:px-10 pb-24">
         <Link
           href="/"

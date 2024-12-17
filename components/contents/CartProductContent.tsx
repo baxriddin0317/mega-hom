@@ -14,7 +14,7 @@ const CartProductContent = () => {
     <div className="grid lg:grid-cols-6 gap-6">
       <div className="order-2 bg-white shadow-md border border-gray-300 rounded-xl p-5 flex lg:col-span-4 flex-col gap-10 py-5">
         {cartProducts.map((cart) => (
-          <div key={cart.id} className="flex flex-wrap items-center">
+          <div key={cart.id} className="flex flex-wrap gap-5 items-center">
             <div className="relative size-44 overflow-hidden rounded-md">
               <Image
                 fill

@@ -80,7 +80,7 @@ const SubmitModal = ({ setOpen }: props) => {
   };
 
   return (
-    <div className="fixed z-99 w-full h-full inset-0 flex items-center justify-center">
+    <div className="fixed z-[9999] w-full h-full inset-0 flex items-center justify-center">
       <div
         onClick={() => setOpen(false)}
         className="absolute inset-0 size-full bg-black/80 z-0"

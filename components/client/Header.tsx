@@ -15,12 +15,6 @@ const Header = () => {
     fetchCategories();
   }, [fetchCategories]);
 
-  if(categories.length == 0){
-    return <div className="flex items-center justify-center h-40">
-      <Loader />
-    </div>
-  }
-
   return (
     <header>
       <div className="w-full bg-white">
@@ -46,7 +40,9 @@ const Header = () => {
                 )}
               </button>
             </div>
-
+            {categories.length == 0 && <div className="flex items-center justify-center h-11">
+              <Loader />
+            </div>}
             <div className={`absolute md:static top-12 left-0 w-full bg-brand md:max-h-none overflow-hidden transition-all ease-in-out duration-200 ${menuOpen ? "max-h-64" : "max-h-0"}`} >
               <div className="flex flex-col md:flex-row md:items-center justify-between">
                 {categories.map((category) => (
