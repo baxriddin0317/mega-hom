@@ -9,6 +9,7 @@ import { ProductT } from "@/lib/types";
 import { deleteObject, listAll, ref } from "firebase/storage";
 import { fireStorage } from "@/firebase/FirebaseConfig";
 import Image from "next/image";
+import ProductRow from "./ProductRow";
 
 const ProductDetail = () => {
     const { products, loading, fetchProducts, deleteProduct } = useProductStore();
@@ -53,59 +54,40 @@ const ProductDetail = () => {
         <table className="w-full text-left border border-collapse sm:border-separate border-pink-100 text-pink-400">
           <tbody>
             <tr>
-              <th
-                scope="col"
-                className="h-12 px-6 text-md border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100 font-bold fontPara"
-              >
+              <th scope="col" className="h-12 px-6 text-md border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100 font-bold fontPara">
                 S.No.
               </th>
-              <th
-                scope="col"
-                className="h-12 px-6 text-md border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100 font-bold fontPara"
-              >
+              <th scope="col" className="h-12 px-6 text-md border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100 font-bold fontPara">
                 Image
               </th>
-              <th
-                scope="col"
-                className="h-12 px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100"
-              >
+              <th scope="col" className="h-12 px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100">
                 Title
               </th>
-              <th
-                scope="col"
-                className="h-12 px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100"
-              >
+              <th scope="col" className="h-12 px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100">
                 Price
               </th>
-              <th
-                scope="col"
-                className="h-12 px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100"
-              >
+              <th scope="col" className="h-12 px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100">
                 Category
               </th>
-              <th
-                scope="col"
-                className="h-12 px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100"
-              >
+              <th scope="col" className="h-12 px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100">
                 {" "}
                 Date
               </th>
-              <th
-                scope="col"
-                className="h-12 px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100"
-              >
+              <th scope="col" className="h-12 px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100">
+                isNew
+              </th>
+              <th scope="col" className="h-12 px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100">
+                isBest
+              </th>
+              <th scope="col" className="h-12 px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100">
                 Action
               </th>
-              <th
-                scope="col"
-                className="h-12 px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100"
-              >
+              <th scope="col" className="h-12 px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100">
                 Action
               </th>
             </tr>
             {products.map((item, index) => {
-              const { id, title, price, category, date, productImageUrl } =
-                item;
+              const { id, title, price, category, date, productImageUrl } = item;
               return (
                 <tr key={index} className="text-pink-300">
                   <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-pink-100 stroke-slate-500 text-slate-500 ">
@@ -128,6 +110,7 @@ const ProductDetail = () => {
                   <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-pink-100 stroke-slate-500 text-slate-500 first-letter:uppercase ">
                     {date.toString()}
                   </td>
+                  <ProductRow item={item} />
                   <td className="h-12 px-6 transition duration-300 border-t border-l first:border-l-0 border-pink-100 stroke-slate-500">
                     <Link href={`/admin-dashboard/update-product/${id}`}><CiEdit className="text-green-500 text-2xl mx-auto cursor-pointer" /></Link>
                   </td>

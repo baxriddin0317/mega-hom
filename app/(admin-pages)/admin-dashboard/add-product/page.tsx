@@ -3,6 +3,7 @@ import Loader from "@/components/Loader";
 import { fireDB, fireStorage } from "@/firebase/FirebaseConfig";
 import { CategoryI, ImageT } from "@/lib/types";
 import useCategoryStore from "@/zustand/useCategoryStore";
+import { Switch } from "@headlessui/react";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useRouter } from "next/navigation";
@@ -30,6 +31,8 @@ const AddProductPage = () => {
     category: "",
     subCategory: "",
     description: "",
+    isBest: false,
+    isNew: false,
     quantity: 0,
     time: Timestamp.now(),
     date: new Date().toLocaleString("en-US", {
@@ -219,6 +222,44 @@ const AddProductPage = () => {
             rows={5}
             className=" w-full px-2 py-1 text-pink-300 bg-pink-50 border border-pink-200 rounded-md outline-none placeholder-pink-300 "
           ></textarea>
+        </div>
+        <div className="flex items-start divide-x-2 gap-4 mb-3">
+          <div>
+            <span className="text-sm text-brand block capitalize mb-1">
+              best product
+            </span>
+            <Switch
+              checked={product.isBest}
+              onChange={() => setProduct({ ...product, isBest: !product.isBest })}
+              className={`${
+                product.isBest ? 'bg-brand' : 'bg-gray-200'
+              } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
+            >
+              <span
+                className={`${
+                  product.isBest ? 'translate-x-6' : 'translate-x-1'
+                } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+              />
+            </Switch>
+          </div>
+          <div className="pl-4">
+            <span className="text-sm text-brand block capitalize mb-1">
+              new product
+            </span>
+            <Switch
+              checked={product.isNew}
+              onChange={() => setProduct({...product, isNew: !product.isNew})}
+              className={`${
+                product.isNew ? 'bg-brand' : 'bg-gray-200'
+              } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
+            >
+              <span
+                className={`${
+                  product.isNew ? 'translate-x-6' : 'translate-x-1'
+                } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+              />
+            </Switch>
+          </div>
         </div>
         {/* Add Product Button  */}
         <div className="mb-3">

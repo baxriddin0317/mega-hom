@@ -17,16 +17,16 @@ const NewProducts = () => {
   const { loading, products, fetchProducts } = useProductStore();
 
   useEffect(() => {
-      fetchProducts()
-    }, [fetchProducts]);
-  
-    if (loading || products.length == 0) {
-      return (
-        <div className="flex items-center justify-center h-40">
-          <Loader />
-        </div>
-      );
-    }
+    fetchProducts()
+  }, [fetchProducts]);
+
+  if (loading || products.length == 0) {
+    return (
+      <div className="flex items-center justify-center h-40">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6">
@@ -64,7 +64,7 @@ const NewProducts = () => {
           modules={[Navigation, Autoplay]}
           className="swiperNewProducts !static"
         >
-          {products.map((card, index) => (
+          {products.filter(p => p.isNew).map((card, index) => (
             <SwiperSlide key={index}>
               <Card
                 img={card.productImageUrl}
@@ -79,14 +79,14 @@ const NewProducts = () => {
           <button
             type="button"
             onClick={() => swiperRef.current?.slidePrev()}
-            className="disabled:opacity-40 sm:absolute top-1/2 sm:-translate-y-1/2 -left-5 bg-white rounded-full border border-brand text-brand rotate-90 z-50 p-1.5 shadow-md mt-5"
+            className={`${products.filter(p => p.isNew).length <= 4 && 'hidden'} disabled:opacity-40 sm:absolute top-1/2 sm:-translate-y-1/2 -left-5 bg-white rounded-full border border-brand text-brand rotate-90 z-50 p-1.5 shadow-md mt-5`}
           >
              <IconChevron />
           </button>
           <button
             type="button"
             onClick={() => swiperRef.current?.slideNext()}
-            className="disabled:opacity-40 sm:absolute top-1/2 sm:-translate-y-1/2 -right-5 bg-white rounded-full border border-brand text-brand -rotate-90 z-50 p-1.5 shadow-md mt-5 ml-3"
+            className={`${products.filter(p => p.isNew).length <= 4 && 'hidden'} disabled:opacity-40 sm:absolute top-1/2 sm:-translate-y-1/2 -right-5 bg-white rounded-full border border-brand text-brand -rotate-90 z-50 p-1.5 shadow-md mt-5 ml-3`}
           >
             <IconChevron />
           </button>

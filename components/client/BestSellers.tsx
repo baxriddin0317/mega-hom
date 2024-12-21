@@ -53,7 +53,7 @@ const BestSellers = () => {
           modules={[Navigation, Autoplay]}
           className="swiperBestSellers !static"
         >
-          {products.map((card, index) => (
+          {products.filter(p => p.isBest).map((card, index) => (
             <SwiperSlide key={index} className="!flex !flex-col !h-auto">
               <Card
                 img={card.productImageUrl}
@@ -68,14 +68,14 @@ const BestSellers = () => {
           <button
             type="button"
             onClick={() => swiperRef.current?.slidePrev()}
-            className="disabled:opacity-40 sm:absolute top-1/2 sm:-translate-y-1/2 -left-5 bg-white rounded-full border border-brand text-brand rotate-90 z-50 p-1.5 shadow-md mt-5"
+            className={`${products.filter(p => p.isBest).length <= 4 && 'hidden'} disabled:opacity-40 sm:absolute top-1/2 sm:-translate-y-1/2 -left-5 bg-white rounded-full border border-brand text-brand rotate-90 z-50 p-1.5 shadow-md mt-5`}
           >
              <IconChevron />
           </button>
           <button
             type="button"
             onClick={() => swiperRef.current?.slideNext()}
-            className="disabled:opacity-40 sm:absolute top-1/2 sm:-translate-y-1/2 -right-5 bg-white rounded-full border border-brand text-brand -rotate-90 z-50 p-1.5 shadow-md mt-5 ml-3"
+            className={`${products.filter(p => p.isBest).length <= 4 && 'hidden'} disabled:opacity-40 sm:absolute top-1/2 sm:-translate-y-1/2 -right-5 bg-white rounded-full border border-brand text-brand -rotate-90 z-50 p-1.5 shadow-md mt-5 ml-3`}
           >
             <IconChevron />
           </button>

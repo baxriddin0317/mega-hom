@@ -55,6 +55,8 @@ const useProductStore = create<ProductStore>((set) => ({
             category: productData.category,
             subCategory: productData.subCategory,
             description: productData.description,
+            isBest: productData.isBest,
+            isNew: productData.isNew,
             quantity: productData.quantity,
             time: productData.time,
             date: productData.date,

@@ -4,6 +4,7 @@ import { fireStorage } from "@/firebase/FirebaseConfig";
 import { CategoryI, ImageT, ProductT } from "@/lib/types";
 import useCategoryStore from "@/zustand/useCategoryStore";
 import useProductStore from "@/zustand/useProductStore";
+import { Switch } from "@headlessui/react";
 import { Timestamp } from "firebase/firestore";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import Image from "next/image";
@@ -37,6 +38,8 @@ const UpdateProductContent = ({ params }: { params: Promise<{ id: string }> }) =
     category: '',
     subCategory: '',
     description: '',
+    isBest: false,
+    isNew: false,
     quantity: 0,
     time: product?.time || emptyTimestamp,
     date: product?.date || emptyTimestamp,
@@ -63,6 +66,8 @@ const UpdateProductContent = ({ params }: { params: Promise<{ id: string }> }) =
         category: product.category,
         subCategory: product.subCategory,
         description: product.description,
+        isBest: product.isBest,
+        isNew: product.isNew,
         quantity: product.quantity,
         time: product.time,
         date: product.date,
@@ -251,6 +256,44 @@ const UpdateProductContent = ({ params }: { params: Promise<{ id: string }> }) =
             onChange={(e) => setUpdatedProduct({ ...updatedProduct, description: e.target.value })}
             className=" w-full px-2 py-1 text-pink-300 bg-pink-50 border border-pink-200 rounded-md outline-none placeholder-pink-300 "
           ></textarea>
+        </div>
+        <div className="flex items-start divide-x-2 gap-4 mb-3">
+          <div>
+            <span className="text-sm text-brand block capitalize mb-1">
+              best product
+            </span>
+            <Switch
+              checked={updatedProduct.isBest}
+              onChange={() => setUpdatedProduct({ ...updatedProduct, isBest: !updatedProduct.isBest })}
+              className={`${
+                updatedProduct.isBest ? 'bg-brand' : 'bg-gray-200'
+              } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
+            >
+              <span
+                className={`${
+                  updatedProduct.isBest ? 'translate-x-6' : 'translate-x-1'
+                } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+              />
+            </Switch>
+          </div>
+          <div className="pl-4">
+            <span className="text-sm text-brand block capitalize mb-1">
+              new product
+            </span>
+            <Switch
+              checked={updatedProduct.isNew}
+              onChange={() => setUpdatedProduct({ ...updatedProduct, isNew: !updatedProduct.isNew })}
+              className={`${
+                updatedProduct.isNew ? 'bg-brand' : 'bg-gray-200'
+              } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
+            >
+              <span
+                className={`${
+                  updatedProduct.isNew ? 'translate-x-6' : 'translate-x-1'
+                } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+              />
+            </Switch>
+          </div>
         </div>
         {/* Update Product Button  */}
         <div className="mb-3">

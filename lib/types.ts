@@ -9,6 +9,8 @@ export interface ProductT {
   subCategory:string;
   description: string;
   quantity: number;
+  isBest: boolean;
+  isNew: boolean
   time: Timestamp;
   date: Timestamp;
   storageFileId: string;
