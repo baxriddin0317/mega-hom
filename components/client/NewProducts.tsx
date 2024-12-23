@@ -70,7 +70,6 @@ const NewProducts = () => {
                 img={card.productImageUrl}
                 title={card.title}
                 currentPrice={card.price}
-                prePrice={card.price}
                 href={`/product/${card.id}`}
               />
             </SwiperSlide>

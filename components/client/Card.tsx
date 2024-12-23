@@ -8,11 +8,10 @@ interface CardProps {
   img: ImageT[];
   title: string;
   currentPrice: number;
-  prePrice: number;
   href: string;
 }
 
-const Card = ({ img, title, currentPrice, prePrice, href }: CardProps) => {
+const Card = ({ img, title, currentPrice, href }: CardProps) => {
   return (
     <Link
       href={href}
@@ -37,9 +36,6 @@ const Card = ({ img, title, currentPrice, prePrice, href }: CardProps) => {
           <div className="flex items-center gap-2 text-sm sm:text-base">
             <span className="font-medium text-brand animate-pulse">
               {FormattedPrice(currentPrice)} UZS
-            </span>
-            <span className="text-gray-400 line-through">
-              {prePrice}
             </span>
           </div>
           <span className="block text-center w-full rounded bg-red-500 hover:bg-red-600 transition-all ease-in-out text-white p-2">
