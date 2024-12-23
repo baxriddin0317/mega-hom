@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Quantity from "../Quantity";
 import { BsCartDash } from "react-icons/bs";
 import SubmitModal from "../Modal";
+import { FormattedPrice } from '@/utils'
 import Image from "next/image";
 
 const CartProductContent = () => {
@@ -23,9 +24,9 @@ const CartProductContent = () => {
                 alt=""
               />
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-2 font-medium">
               <h3>{cart.title}</h3>
-              <p>{cart.price}UZS</p>
+              <p>{FormattedPrice(cart.price)}UZS</p>
             </div>
             <Quantity id={cart.id} />
           </div>
@@ -38,11 +39,11 @@ const CartProductContent = () => {
         </div>
         <div className="flex items-center justify-between">
           <p className="text-slate-400">Umumiy summa</p>
-          <p className="text-gray-800 ">{totalPrice} UZS</p>
+          <p className="text-gray-800 ">{FormattedPrice(totalPrice)} UZS</p>
         </div>
         <button
           onClick={() => setOpen(true)}
-          className="flex items-center mx-auto justify-center gap-2 bg-indigo-500 transition-all ease-in-out hover:bg-indigo-600 rounded-xl max-w-lg w-full text-white p-3 !mt-6"
+          className="flex items-center mx-auto justify-center gap-2 bg-red-500 transition-all ease-in-out hover:bg-red-600 rounded-xl max-w-lg w-full text-white p-3 !mt-6"
         >
           <BsCartDash className="text-white text-xl" />
           <span>Adminga Yuborish</span>

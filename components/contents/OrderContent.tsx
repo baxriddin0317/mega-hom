@@ -9,6 +9,7 @@ import {
 import React, { useEffect } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import Loader from "../Loader";
+import { FormattedPrice } from '@/utils'
 import Image from "next/image";
 
 const OrderContent = () => {
@@ -112,7 +113,7 @@ const OrderContent = () => {
                                 {title}
                               </td>
                               <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-pink-100 stroke-slate-500 text-slate-500 first-letter:uppercase ">
-                                ${price}
+                                {FormattedPrice(price)} UZS
                               </td>
                               <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-pink-100 stroke-slate-500 text-slate-500 first-letter:uppercase ">
                                 {quantity}

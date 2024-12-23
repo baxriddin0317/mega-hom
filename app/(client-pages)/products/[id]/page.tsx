@@ -106,7 +106,7 @@ const Products = ({ params }: { params: Promise<{ id: string }> }) => {
                     img={card.productImageUrl}
                     title={card.title}
                     currentPrice={card.price}
-                    prePrice={card.price + 100}
+                    prePrice={card.price}
                     href={`/product/${card.id}`}
                   />
                 ))}
@@ -122,7 +122,7 @@ const Products = ({ params }: { params: Promise<{ id: string }> }) => {
                         img={card.productImageUrl}
                         title={card.title}
                         currentPrice={card.price}
-                        prePrice={card.price + 100}
+                        prePrice={card.price}
                         href={`/product/${card.id}`}
                       />
                     ))
@@ -163,7 +163,7 @@ const Products = ({ params }: { params: Promise<{ id: string }> }) => {
               onClick={() => handlePageChange(i + 1)}
               className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
                 currentPage === i + 1
-                  ? "bg-indigo-600 text-white"
+                  ? "bg-red-600 text-white"
                   : "text-gray-900 hover:bg-gray-50"
               } ring-1 ring-inset ring-gray-300`}
             >

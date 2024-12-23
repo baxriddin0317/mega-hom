@@ -52,7 +52,7 @@ const ProductContent = ({productID}: {productID:string}) => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6">
       <Link
         href="/"
-        className="flex items-center gap-1 w-fit text-gray-500 text-sm transition-all ease-in-out hover:text-indigo-500 py-4"
+        className="flex items-center gap-1 w-fit text-gray-500 text-sm transition-all ease-in-out hover:text-red-500 py-4"
       >
         <GoArrowLeft className="text-xl" />
         <span>Orqaga</span>
@@ -62,6 +62,14 @@ const ProductContent = ({productID}: {productID:string}) => {
           <Image className="absolute w-full h-full sm:object-cover" fill src={product.productImageUrl[0].url} alt='' />
         </div>
         <div className="space-y-8">
+          <div className='space-y-4'>
+            <h2 className="sm:text-2xl font-semibold">
+              {product.title}
+            </h2>
+            <p className="text-lg">
+              {product.description}
+            </p> 
+          </div>
           <div className="rounded-xl border border-gray-300 flex items-center gap-8 w-fit py-1.5 px-2">
             <button onClick={handledeleteQuantity} disabled={quantity == 1} className="size-9 bg-gray-100 flex items-center justify-center rounded-full">
               -
@@ -79,7 +87,7 @@ const ProductContent = ({productID}: {productID:string}) => {
           </div>
           <button
             onClick={handleSubmit}
-            className="flex items-center justify-center gap-2 bg-indigo-500 transition-all ease-in-out hover:bg-indigo-600 rounded-xl max-w-lg w-full text-white p-3"
+            className="flex items-center justify-center gap-2 bg-red-500 transition-all ease-in-out hover:bg-red-600 rounded-xl max-w-lg w-full text-white p-3"
           >
             {load ? <Loader /> : (
               <>
@@ -87,13 +95,7 @@ const ProductContent = ({productID}: {productID:string}) => {
                 <span>Savatga qo&apos;shish</span>
               </>
             )}
-          </button>
-          <h2 className="sm:text-2xl font-semibold">
-            Kreslo 205 lorem20
-          </h2>
-          <p className="text-lg">
-            DOMTIME zamonaviy ko&apos;rinishdagi kreslo
-          </p>           
+          </button>          
         </div>
       </div>
     </div>

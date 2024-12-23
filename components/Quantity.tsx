@@ -33,7 +33,7 @@ const Quantity = ({id}: {id:string}) => {
       </div>
       <button 
         onClick={handleAddQuantity} 
-        className="size-9 bg-indigo-500 text-white flex items-center justify-center rounded-full"
+        className="size-9 bg-red-500 text-white flex items-center justify-center rounded-full"
       >
         <LuPlus className="text-white" />
       </button>

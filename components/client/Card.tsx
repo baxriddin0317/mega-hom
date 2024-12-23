@@ -1,6 +1,7 @@
 import { ImageT } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
+import { FormattedPrice } from '@/utils'
 import React from "react";
 
 interface CardProps {
@@ -12,9 +13,6 @@ interface CardProps {
 }
 
 const Card = ({ img, title, currentPrice, prePrice, href }: CardProps) => {
-  const formattedCurrentPrice = currentPrice.toLocaleString("en-US");
-  const formattedPrePrice = prePrice.toLocaleString("en-US");
-
   return (
     <Link
       href={href}
@@ -38,13 +36,13 @@ const Card = ({ img, title, currentPrice, prePrice, href }: CardProps) => {
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm sm:text-base">
             <span className="font-medium text-brand animate-pulse">
-              {formattedCurrentPrice}
+              {FormattedPrice(currentPrice)} UZS
             </span>
             <span className="text-gray-400 line-through">
-              {formattedPrePrice}
+              {prePrice}
             </span>
           </div>
-          <span className="block text-center w-full rounded bg-brand hover:bg-brand/80 transition-all ease-in-out text-white p-2">
+          <span className="block text-center w-full rounded bg-red-500 hover:bg-red-600 transition-all ease-in-out text-white p-2">
             Buyrutma qilish
           </span>
         </div>

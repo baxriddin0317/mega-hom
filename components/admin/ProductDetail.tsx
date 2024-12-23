@@ -7,6 +7,7 @@ import useProductStore from "@/zustand/useProductStore";
 import toast from "react-hot-toast";
 import { ProductT } from "@/lib/types";
 import { deleteObject, listAll, ref } from "firebase/storage";
+import { FormattedPrice } from '@/utils'
 import { fireStorage } from "@/firebase/FirebaseConfig";
 import Image from "next/image";
 import ProductRow from "./ProductRow";
@@ -102,7 +103,7 @@ const ProductDetail = () => {
                     {title}
                   </td>
                   <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-pink-100 stroke-slate-500 text-slate-500 first-letter:uppercase ">
-                    ${price}
+                    {FormattedPrice(price)} UZS
                   </td>
                   <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-pink-100 stroke-slate-500 text-slate-500 first-letter:uppercase ">
                     {category}
