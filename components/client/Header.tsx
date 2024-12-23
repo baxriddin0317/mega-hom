@@ -5,6 +5,7 @@ import { HumburgerIcon, XIcon } from "../icons";
 import Image from "next/image";
 import useCategoryStore from "@/zustand/useCategoryStore";
 import Loader from "../Loader";
+import SearchContent from "../SearchContent";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -24,7 +25,7 @@ const Header = () => {
           </Link>
 
           <div className="max-w-md w-full">
-            <input type="search" placeholder="Mahsulot izlash" className="border border-gray-400 rounded-md w-full h-10 md:h-12 px-4"  />
+            <SearchContent />
           </div>
         </div>
 
