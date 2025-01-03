@@ -44,38 +44,38 @@ const CategoryDetail = () => {
               <tr>
                 <th
                   scope="col"
-                  className="py-2 px-6 text-md border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100 font-bold fontPara"
+                  className="py-2 px-4 lg:px-6 text-md border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100 font-bold fontPara"
                 >
                   S.No.
                 </th>
                 <th
                   scope="col"
-                  className="py-2 px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100"
+                  className="py-2 px-4 lg:px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100"
                 >
                   Category Name
                 </th>
                 <th
                   scope="col"
-                  className="py-2 px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100"
+                  className="py-2 px-4 lg:px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100"
                 >
                   Sub Categories
                 </th>
                 <th
                   scope="col"
-                  className="py-2 px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100"
+                  className="py-2 px-4 lg:px-6 text-md font-bold fontPara border-l first:border-l-0 border-pink-100 text-slate-700 bg-slate-100"
                 >
                   Delete
                 </th>
               </tr>
               {categories.map((item, idx) => (
                 <tr key={idx} className="text-pink-300">
-                  <td className="py-2 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-pink-100 stroke-slate-500 text-slate-500 ">
+                  <td className="py-2 px-4 lg:px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-pink-100 stroke-slate-500 text-slate-500 ">
                     {idx + 1}
                   </td>
-                  <td className="py-2 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-pink-100 stroke-slate-500 text-slate-500 first-letter:uppercase ">
+                  <td className="py-2 px-4 lg:px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-pink-100 stroke-slate-500 text-slate-500 first-letter:uppercase ">
                     {item.name}
                   </td>
-                  <td className="flex items-center gap-2 flex-wrap py-2 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-pink-100 stroke-slate-500 text-slate-500 first-letter:uppercase ">
+                  <td className="flex items-center gap-2 flex-wrap py-2 px-4 lg:px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-pink-100 stroke-slate-500 text-slate-500 first-letter:uppercase ">
                     {item.subcategory.map((tag,idx) => (
                       <span
                         key={idx}
@@ -85,7 +85,7 @@ const CategoryDetail = () => {
                       </span>
                     ))}
                   </td>
-                  <td className="py-2 px-6 transition duration-300 border-t border-l first:border-l-0 border-pink-100 stroke-slate-500">
+                  <td className="py-2 px-4 lg:px-6 transition duration-300 border-t border-l first:border-l-0 border-pink-100 stroke-slate-500">
                     <button onClick={() => handleDelete(item)}>
                       <MdDeleteForever className="text-red-500 text-2xl mx-auto cursor-pointer" />
                     </button>
