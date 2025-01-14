@@ -46,7 +46,7 @@ const Header = () => {
             </div>}
             <div className={`absolute md:static top-12 left-0 w-full bg-brand md:max-h-none overflow-hidden transition-all ease-in-out duration-200 z-10 ${menuOpen ? "max-h-64" : "max-h-0"}`} >
               <div className="flex flex-col md:flex-row md:items-center justify-between">
-                {categories.map((category) => (
+                {categories.slice(0, -1).map((category) => (
                   <Link
                     key={category.id}
                     href={`/products/${category.id}`}
@@ -55,6 +55,13 @@ const Header = () => {
                     <span>{category.name}</span>
                   </Link>
                 ))}
+                <Link
+                    href='https://www.kursiy.uz/'
+                    target="_blank"
+                    className="flex items-center justify-center gap-1 uppercase text-white transition-all ease-in-out hover:text-white/70 border-b border-transparent hover:border-b hover:border-white font-medium text-xs lg:text-sm p-3"
+                  >
+                    <span>Kreslolar</span>
+                  </Link>
               </div>
             </div>
           </div>
