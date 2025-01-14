@@ -47,8 +47,8 @@ const Hero = () => {
           <div className="relative w-full h-full">
             <Image
               fill
-              src="/ramadan-banner.webp"
-              alt="Ramadan Banner"
+              src="/banner-1.JPG"
+              alt="Banner 1"
               className="absolute w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-black/40 w-full h-full"></div>
@@ -60,20 +60,7 @@ const Hero = () => {
           <div className="relative w-full h-full">
             <Image
               fill
-              src="/banner1.jpg"
-              alt="Banner 1"
-              className="absolute w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-black/40 w-full h-full"></div>
-          </div>
-        </SwiperSlide>
-
-        {/* Slide 3 */}
-        <SwiperSlide>
-          <div className="relative w-full h-full">
-            <Image
-              fill
-              src="/banner2.jpg"
+              src="/banner-2.PNG"
               alt="Banner 2"
               className="absolute w-full h-full object-cover"
             />

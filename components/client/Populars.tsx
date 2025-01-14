@@ -13,7 +13,7 @@ const Populars = () => {
         <Image src="/dishes.svg" width={128} height={128} alt="dishes" className="hidden sm:block w-16 lg:w-32" />
         <div>
           <h3 className="text-white font-medium text-lg">
-            Daxshat idishlar
+            Oshxona toplamlari
           </h3>
           <span className="text-gray-300">
             345 400na
@@ -21,10 +21,10 @@ const Populars = () => {
         </div>
       </Link>
       <Link href="/products" className="flex items-center gap-5 rounded bg-red-400 hover:shadow-brand transition-all ease-in-out p-5">
-        <Image src="/dishes.svg" width={128} height={128} alt="dishes" className="hidden sm:block w-16" />
+        <Image src="/decors.svg" width={128} height={128} alt="dishes" className="hidden sm:block w-16" />
         <div>
           <h3 className="text-white font-medium text-lg">
-            Offis va uy uchun kreslolar
+            Dekorlar
           </h3>
           <span className="text-gray-300">
             345 dona
@@ -32,7 +32,7 @@ const Populars = () => {
         </div>
       </Link>
       <Link href="/products" className="flex items-center gap-5 rounded bg-red-400 hover:shadow-brand transition-all ease-in-out p-5">
-        <Image src="/dishes.svg" width={128} height={128} alt="dishes" className="hidden sm:block w-16" />
+        <Image src="/safe.svg" width={128} height={128} alt="dishes" className="hidden sm:block w-16" />
         <div>
           <h3 className="text-white font-medium text-lg">
             Seyflar
@@ -43,10 +43,10 @@ const Populars = () => {
         </div>
       </Link>
       <Link href="/products" className="relative group overflow-hidden lg:row-span-2 flex items-center gap-5 lg:block rounded bg-yellow-500 hover:shadow-brand transition-all ease-in-out p-5">
-        <Image src="/dishes.svg" width={128} height={128} alt="dishes" className="hidden sm:block w-16 lg:w-32" />
+        <Image src="/appliances.svg" width={128} height={128} alt="dishes" className="hidden sm:block w-16 lg:w-32" />
         <div>
           <h3 className="text-white font-medium text-lg">
-            Daxshat idishlar
+            Maishiy texnika
           </h3>
           <span className="text-gray-300">
             345 400na
@@ -54,10 +54,10 @@ const Populars = () => {
         </div>
       </Link>
       <Link href="/products" className="flex items-center gap-5 rounded bg-red-400 hover:shadow-brand transition-all ease-in-out p-5">
-        <Image src="/dishes.svg" width={128} height={128} alt="dishes" className="hidden sm:block w-16" />
+        <Image src="/luggage.svg" width={128} height={128} alt="dishes" className="hidden sm:block w-16" />
         <div>
           <h3 className="text-white font-medium text-lg">
-            Chemodan
+            Chamadonlar
           </h3>
           <span className="text-gray-300">
             345 dona
@@ -65,10 +65,10 @@ const Populars = () => {
         </div>
       </Link>
       <Link href="/products" className="flex items-center gap-5 rounded bg-red-400 hover:shadow-brand transition-all ease-in-out p-5">
-        <Image src="/dishes.svg" width={128} height={128} alt="dishes" className="hidden sm:block w-16" />
+        <Image src="/chair.svg" width={128} height={128} alt="dishes" className="hidden sm:block w-16" />
         <div>
           <h3 className="text-white font-medium text-lg">
-            Daxshat idishlar
+            Kreslolar
           </h3>
           <span className="text-gray-300">
             345 dona
