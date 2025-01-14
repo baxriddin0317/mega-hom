@@ -15,9 +15,9 @@ const Populars = () => {
           <h3 className="text-white font-medium text-lg">
             Oshxona toplamlari
           </h3>
-          <span className="text-gray-300">
-            345 400na
-          </span>
+          {/* <span className="text-gray-300">
+            345 dona
+          </span> */}
         </div>
       </Link>
       <Link href="/products" className="flex items-center gap-5 rounded bg-red-400 hover:shadow-brand transition-all ease-in-out p-5">
@@ -26,9 +26,9 @@ const Populars = () => {
           <h3 className="text-white font-medium text-lg">
             Dekorlar
           </h3>
-          <span className="text-gray-300">
+          {/* <span className="text-gray-300">
             345 dona
-          </span>
+          </span> */}
         </div>
       </Link>
       <Link href="/products" className="flex items-center gap-5 rounded bg-red-400 hover:shadow-brand transition-all ease-in-out p-5">
@@ -37,9 +37,9 @@ const Populars = () => {
           <h3 className="text-white font-medium text-lg">
             Seyflar
           </h3>
-          <span className="text-gray-300">
+          {/* <span className="text-gray-300">
             345 dona
-          </span>
+          </span> */}
         </div>
       </Link>
       <Link href="/products" className="relative group overflow-hidden lg:row-span-2 flex items-center gap-5 lg:block rounded bg-yellow-500 hover:shadow-brand transition-all ease-in-out p-5">
@@ -48,9 +48,9 @@ const Populars = () => {
           <h3 className="text-white font-medium text-lg">
             Maishiy texnika
           </h3>
-          <span className="text-gray-300">
+          {/* <span className="text-gray-300">
             345 400na
-          </span>
+          </span> */}
         </div>
       </Link>
       <Link href="/products" className="flex items-center gap-5 rounded bg-red-400 hover:shadow-brand transition-all ease-in-out p-5">
@@ -59,9 +59,9 @@ const Populars = () => {
           <h3 className="text-white font-medium text-lg">
             Chamadonlar
           </h3>
-          <span className="text-gray-300">
+          {/* <span className="text-gray-300">
             345 dona
-          </span>
+          </span> */}
         </div>
       </Link>
       <Link href="/products" className="flex items-center gap-5 rounded bg-red-400 hover:shadow-brand transition-all ease-in-out p-5">
@@ -70,9 +70,9 @@ const Populars = () => {
           <h3 className="text-white font-medium text-lg">
             Kreslolar
           </h3>
-          <span className="text-gray-300">
+          {/* <span className="text-gray-300">
             345 dona
-          </span>
+          </span> */}
         </div>
       </Link>
     </div>
