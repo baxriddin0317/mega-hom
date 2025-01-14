@@ -47,7 +47,7 @@ const Partners = () => {
         className="swiperPartnerBrands"
       >
         {logos.map((logo, index) => (
-          <SwiperSlide key={index}>
+          <SwiperSlide key={index} className="!h-auto">
             <div className="relative w-full h-12">
               <Image
                 fill

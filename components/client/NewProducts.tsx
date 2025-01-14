@@ -65,7 +65,7 @@ const NewProducts = () => {
           className="swiperNewProducts !static"
         >
           {products.filter(p => p.isNew).map((card, index) => (
-            <SwiperSlide key={index}>
+            <SwiperSlide key={index} className="!h-auto">
               <Card
                 img={card.productImageUrl}
                 title={card.title}

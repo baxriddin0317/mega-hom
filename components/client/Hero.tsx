@@ -43,7 +43,7 @@ const Hero = () => {
         className="mySwiper h-40 sm:h-80 lg:h-[500px]"
       >
         {/* Slide 1 */}
-        <SwiperSlide>
+        <SwiperSlide className="!h-auto">
           <div className="relative w-full h-full">
             <Image
               fill
@@ -56,7 +56,7 @@ const Hero = () => {
         </SwiperSlide>
 
         {/* Slide 2 */}
-        <SwiperSlide>
+        <SwiperSlide className="!h-auto">
           <div className="relative w-full h-full">
             <Image
               fill
