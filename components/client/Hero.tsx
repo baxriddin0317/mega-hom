@@ -40,7 +40,7 @@ const Hero = () => {
         navigation={true}
         modules={[Autoplay, Pagination, Navigation]}
         onAutoplayTimeLeft={onAutoplayTimeLeft}
-        className="mySwiper h-40 sm:h-80 lg:h-[500px]"
+        className="mySwiper h-52 md:h-[400px] lg:h-[600px]"
       >
         {/* Slide 1 */}
         <SwiperSlide className="!h-auto">
@@ -49,7 +49,7 @@ const Hero = () => {
               fill
               src="/banner-1.JPG"
               alt="Banner 1"
-              className="absolute w-full h-full object-cover"
+              className="absolute"
             />
             <div className="absolute inset-0 bg-black/40 w-full h-full"></div>
           </div>
@@ -62,7 +62,7 @@ const Hero = () => {
               fill
               src="/banner-2.PNG"
               alt="Banner 2"
-              className="absolute w-full h-full object-cover"
+              className="absolute"
             />
             <div className="absolute inset-0 bg-black/40 w-full h-full"></div>
           </div>

@@ -30,7 +30,7 @@ const NewProducts = () => {
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6">
-      <h2 className="text-3xl sm:text-4xl font-bold pb-5">New Products</h2>
+      <h2 className="text-3xl sm:text-4xl font-bold pb-5">Yangi mahsulotlar</h2>
       <div className="relative">
         <Swiper
           slidesPerView={2}
@@ -69,6 +69,7 @@ const NewProducts = () => {
               <Card
                 img={card.productImageUrl}
                 title={card.title}
+                description={card.description}
                 currentPrice={card.price}
                 href={`/product/${card.id}`}
               />

@@ -7,11 +7,12 @@ import React from "react";
 interface CardProps {
   img: ImageT[];
   title: string;
+  description: string;
   currentPrice: number;
   href: string;
 }
 
-const Card = ({ img, title, currentPrice, href }: CardProps) => {
+const Card = ({ img, title, description, currentPrice, href }: CardProps) => {
   return (
     <Link
       href={href}
@@ -30,7 +31,7 @@ const Card = ({ img, title, currentPrice, href }: CardProps) => {
           <span className="text-black hover:text-brand">
             <h3 className="sm:text-xl font-semibold">{title}</h3>
           </span>
-          <p>qisqacha xossalari</p>
+          <p>{description}</p>
         </div>
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm sm:text-base">

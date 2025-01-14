@@ -28,7 +28,7 @@ const BestSellers = () => {
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6">
-      <h2 className="text-3xl sm:text-4xl font-bold pb-5">Best Sellers</h2>
+      <h2 className="text-3xl sm:text-4xl font-bold pb-5">Sotuv xitlari</h2>
       <div className="relative">
         <Swiper
           onBeforeInit={(swiper) => {
@@ -58,6 +58,7 @@ const BestSellers = () => {
               <Card
                 img={card.productImageUrl}
                 title={card.title}
+                description={card.description}
                 currentPrice={card.price}
                 href={`/product/${card.id}`}
               />

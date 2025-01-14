@@ -105,6 +105,7 @@ const Products = ({ params }: { params: Promise<{ id: string }> }) => {
                     key={card.id}
                     img={card.productImageUrl}
                     title={card.title}
+                    description={card.description}
                     currentPrice={card.price}
                     href={`/product/${card.id}`}
                   />
@@ -120,6 +121,7 @@ const Products = ({ params }: { params: Promise<{ id: string }> }) => {
                         key={card.id}
                         img={card.productImageUrl}
                         title={card.title}
+                        description={card.description}
                         currentPrice={card.price}
                         href={`/product/${card.id}`}
                       />
