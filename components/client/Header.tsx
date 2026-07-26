@@ -62,37 +62,44 @@ const Header = () => {
   return (
     <header>
       <div className="w-full bg-white">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-5 py-1 md:py-0 xl:px-0 px-4 my-2">
-          <Link href="/" className="relative block w-36 sm:w-44 h-12 sm:h-14 shrink-0">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 md:gap-5 py-1 md:py-0 xl:px-0 px-4 my-2">
+          <Link href="/" className="relative block w-32 sm:w-44 h-11 sm:h-14 shrink-0">
             <Image className="object-contain" fill sizes="176px" priority src="/megahome-text.png" alt="megahome" />
           </Link>
 
-          <div className="max-w-md w-full">
+          {/* Desktop (md+): search inline in the top row. On mobile it moves to its
+              own full-width row below so it's never squeezed by the logo + account. */}
+          <div className="hidden md:block max-w-md w-full">
             <SearchContent />
           </div>
 
           <AccountMenu />
         </div>
 
+        {/* Mobile (< md): search is ALWAYS visible on every page — including the
+            landing page — without opening any menu. On pages that have a category
+            menu, the hamburger sits right next to the search (per request). */}
+        <div className="md:hidden flex items-center gap-2 px-4 pb-2">
+          <div className="flex-1 min-w-0">
+            <SearchContent />
+          </div>
+          {!isHome && (
+            <button
+              type="button"
+              className="shrink-0 inline-flex items-center justify-center h-10 w-10 rounded-md border border-brand text-brand hover:bg-brand hover:text-white transition-colors"
+              aria-label={menuOpen ? "Menyuni yopish" : "Menyuni ochish"}
+              aria-expanded={menuOpen}
+              aria-controls="mobil-menyu"
+              onClick={() => setMenuOpen((prev) => !prev)}
+            >
+              {menuOpen ? <CloseIcon /> : <MenuIcon />}
+            </button>
+          )}
+        </div>
+
         {!isHome && (
         <div className="relative bg-brand">
-          <div className="max-w-7xl mx-auto px-4 min-h-[44px]">
-            <div className="md:hidden flex items-center justify-between py-2">
-              <span className="font-brand uppercase tracking-wide text-white" aria-hidden="true">
-                Menyu
-              </span>
-              <button
-                type="button"
-                className="text-white"
-                aria-label={menuOpen ? "Menyuni yopish" : "Menyuni ochish"}
-                aria-expanded={menuOpen}
-                aria-controls="mobil-menyu"
-                onClick={() => setMenuOpen((prev) => !prev)}
-              >
-                {menuOpen ? <CloseIcon /> : <MenuIcon />}
-              </button>
-            </div>
-
+          <div className="max-w-7xl mx-auto px-4 md:min-h-[44px]">
             {loading && categories.length === 0 && (
               <div className="flex items-center justify-center h-11">
                 <Loader />

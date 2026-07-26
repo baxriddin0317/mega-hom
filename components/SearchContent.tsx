@@ -1,7 +1,7 @@
 import { ProductT } from "@/lib/types";
 import useProductStore from "@/zustand/useProductStore";
 import Link from "next/link";
-import ProductImage, { firstImageUrl } from "@/components/ProductImage";
+import ProductImage, { firstThumbUrl } from "@/components/ProductImage";
 import React, { FocusEvent, KeyboardEvent, useEffect, useState } from "react";
 
 const SearchContent = () => {
@@ -95,7 +95,7 @@ const SearchContent = () => {
                       <ProductImage
                         fill
                         alt={command.title}
-                        src={firstImageUrl(command.productImageUrl)}
+                        src={firstThumbUrl(command.productImageUrl)}
                         className="w-full h-full object-cover"
                       />
                     </div>

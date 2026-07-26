@@ -124,3 +124,47 @@ export async function optimizeImagesForUpload(
   const list = Array.from(files);
   return Promise.all(list.map((f) => optimizeImageForUpload(f)));
 }
+
+const THUMB_EDGE = 400;
+const THUMB_QUALITY = 0.7;
+
+/**
+ * Small grid/card thumbnail (long edge ≤ 400px WebP). The storefront shows many
+ * product cards at ~180px; without a thumb, `unoptimized` next/image serves the
+ * full ≤1600px photo into each — 4-16× more bytes than needed. Returns `null` on
+ * any failure so callers can fall back to the full image (never a broken card).
+ */
+export async function makeThumbnail(
+  file: File,
+  maxEdge = THUMB_EDGE,
+  quality = THUMB_QUALITY
+): Promise<File | null> {
+  try {
+    if (!file.type.startsWith("image/")) return null;
+    const bitmap = await createImageBitmap(file);
+    const { width, height } = bitmap;
+    const longEdge = Math.max(width, height);
+    const scale = longEdge > maxEdge ? maxEdge / longEdge : 1;
+    const w = Math.max(1, Math.round(width * scale));
+    const h = Math.max(1, Math.round(height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      bitmap.close();
+      return null;
+    }
+    ctx.drawImage(bitmap, 0, 0, w, h);
+    bitmap.close();
+    const preferWebp = await detectWebpSupport();
+    const mime = preferWebp ? "image/webp" : "image/jpeg";
+    let blob = await canvasToBlob(canvas, mime, quality);
+    if (!blob || blob.size === 0) blob = await canvasToBlob(canvas, "image/jpeg", quality);
+    if (!blob) return null;
+    const name = `${baseName(file.name)}.${extensionFor(blob.type || mime)}`;
+    return new File([blob], name, { type: blob.type || mime, lastModified: Date.now() });
+  } catch {
+    return null;
+  }
+}

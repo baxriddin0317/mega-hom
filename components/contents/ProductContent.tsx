@@ -57,13 +57,15 @@ const ProductContent = ({productID}: {productID:string}) => {
   }
 
   const stock = Number(product.quantity) || 0;
-  const outOfStock = stock <= 0;
+  // Wholesale: products are ALWAYS orderable (backorder). On-hand stock is shown
+  // only as an informational "kam qoldi" hint — it never blocks a sale, so a
+  // product at 0 shows no "Sotuvda yoʼq" and can still be added to the cart.
   // Skip empty/malformed entries so the gallery never feeds next/image an empty src.
   const images = (product.productImageUrl ?? []).filter((im) => im?.url?.trim());
   const active = images[selectedImage] ?? images[0];
 
   const handleAddQuantity = () => {
-    setQuantity((q) => (stock > 0 ? Math.min(q + 1, stock) : q + 1));
+    setQuantity((q) => q + 1);
   };
 
   const handledeleteQuantity = () => {
@@ -71,7 +73,6 @@ const ProductContent = ({productID}: {productID:string}) => {
   };
 
   const handleSubmit = () => {
-    if (outOfStock) return;
     addToBasket({ ...product, quantity });
     toast.success("Savatga qoʼshildi ✓");
   };
@@ -137,8 +138,7 @@ const ProductContent = ({productID}: {productID:string}) => {
             </div>
             <button
               onClick={handleAddQuantity}
-              disabled={outOfStock || (stock > 0 && quantity >= stock)}
-              className="size-9 bg-brand text-white flex items-center justify-center rounded-full disabled:opacity-40 disabled:cursor-not-allowed"
+              className="size-9 bg-brand text-white flex items-center justify-center rounded-full"
             >
               +
             </button>
@@ -146,24 +146,21 @@ const ProductContent = ({productID}: {productID:string}) => {
           <div>
             <div className="text-sm text-gray-500">Umumiy</div>
             <div className="font-bold">{FormattedPrice(product.price * quantity)} UZS</div>
-            {outOfStock ? (
-              <div className="text-sm font-medium text-brand mt-1">Hozircha sotuvda yoʼq</div>
-            ) : stock <= 5 ? (
+            {stock > 0 && stock <= 5 ? (
               <div className="text-sm font-medium text-amber-600 mt-1">Faqat {stock} dona qoldi</div>
             ) : null}
           </div>
           <button
             onClick={handleSubmit}
-            disabled={outOfStock}
-            className="hidden lg:flex items-center justify-center gap-2 bg-brand transition-all ease-in-out hover:bg-brand-600 rounded-xl max-w-lg w-full text-white p-3 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="hidden lg:flex items-center justify-center gap-2 bg-brand transition-all ease-in-out hover:bg-brand-600 rounded-xl max-w-lg w-full text-white p-3"
           >
             {load ? <Loader /> : (
               <>
                 <BsCartDash className="text-white text-xl" />
-                <span>{outOfStock ? "Sotuvda yoʼq" : "Savatga qoʼshish"}</span>
+                <span>Savatga qoʼshish</span>
               </>
             )}
-          </button>          
+          </button>
         </div>
       </div>
 
@@ -175,11 +172,10 @@ const ProductContent = ({productID}: {productID:string}) => {
         </div>
         <button
           onClick={handleSubmit}
-          disabled={outOfStock}
-          className="ml-auto flex flex-1 items-center justify-center gap-2 bg-brand hover:bg-brand-600 transition-colors rounded-xl text-white p-3 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+          className="ml-auto flex flex-1 items-center justify-center gap-2 bg-brand hover:bg-brand-600 transition-colors rounded-xl text-white p-3 font-semibold"
         >
           <BsCartDash className="text-white text-xl" />
-          <span>{outOfStock ? "Sotuvda yoʼq" : "Savatga qoʼshish"}</span>
+          <span>Savatga qoʼshish</span>
         </button>
       </div>
     </div>

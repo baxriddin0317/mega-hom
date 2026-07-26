@@ -17,6 +17,7 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { v4 as uuidv4 } from "uuid";
 import { optimizeImageForUpload } from "@/utils/optimizeImage";
+import { uploadThumbSafe } from "@/lib/uploadThumb";
 
 const emptyTimestamp = new Timestamp(0, 0);
 
@@ -121,7 +122,8 @@ const UpdateProductContent = ({ params }: { params: Promise<{ id: string }> }) =
         const storageRef = ref(fireStorage, `products/${folder}/${safeName}`);
         await uploadBytes(storageRef, optimized);
         const downloadUrl = await getDownloadURL(storageRef);
-        return { url: downloadUrl, path: storageRef.fullPath };
+        const thumb = await uploadThumbSafe(optimized, folder, safeName);
+        return { url: downloadUrl, path: storageRef.fullPath, ...thumb };
       });
       const imageUrls = await Promise.all(uploadPromises);
       setUpdatedProduct((prevProduct) => ({

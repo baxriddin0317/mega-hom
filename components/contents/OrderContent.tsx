@@ -1,5 +1,6 @@
 "use client";
 import { useOrderStore, ORDER_FETCH_LIMIT } from "@/zustand/useOrderStore";
+import useProductStore from "@/zustand/useProductStore";
 import {
   Disclosure,
   DisclosureButton,
@@ -27,6 +28,7 @@ import { startOfToday, startOfDaysAgo } from "@/lib/reports";
 
 const OrderContent = () => {
   const { orders, fetchAllOrders, loadingOrders, updateOrderStatus, deleteOrder } = useOrderStore();
+  const { products, fetchProducts } = useProductStore();
   const me = useRole();
   const [tab, setTab] = useState<"all" | OrderStatus>("all");
   const [showManual, setShowManual] = useState(false);
@@ -36,8 +38,16 @@ const OrderContent = () => {
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    fetchAllOrders()
-  }, [fetchAllOrders]);
+    fetchAllOrders();
+    fetchProducts();
+  }, [fetchAllOrders, fetchProducts]);
+
+  // Live on-hand stock per product id — lets the admin see current Qoldiq next to
+  // each ordered line (a red ⚠ flags "less in stock than ordered → restock").
+  const stockById = useMemo(
+    () => new Map(products.map((p) => [p.id, Number(p.quantity) || 0])),
+    [products]
+  );
 
   // Everything EXCEPT the status tab — so the tab counts reflect the current
   // search / channel / date scope, and the tab then narrows further by status.
@@ -449,14 +459,22 @@ const OrderContent = () => {
                                 scope="col"
                                 className="h-12 px-6 text-md font-bold fontPara border-l first:border-l-0 border-brand-100 text-slate-700 bg-slate-100"
                               >
+                                Ombor qoldigʼi
+                              </th>
+                              <th
+                                scope="col"
+                                className="h-12 px-6 text-md font-bold fontPara border-l first:border-l-0 border-brand-100 text-slate-700 bg-slate-100"
+                              >
                                 Kategoriya
                               </th>
                             </tr>
                           </thead>
                           <tbody>
                             {order.basketItems.map((item, index) => {
-                              const { title, price, category, quantity, productImageUrl } =
+                              const { id, title, price, category, quantity, productImageUrl } =
                                 item;
+                              const onHand = stockById.get(id);
+                              const short = onHand !== undefined && onHand < (quantity ?? 0);
                               return (
                                 <tr key={index}>
                                   <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-brand-100 stroke-slate-500 text-slate-500 ">
@@ -482,6 +500,18 @@ const OrderContent = () => {
                                   </td>
                                   <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-brand-100 stroke-slate-500 text-slate-500 first-letter:uppercase ">
                                     {quantity}
+                                  </td>
+                                  <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-brand-100">
+                                    {onHand === undefined ? (
+                                      <span className="text-slate-300">—</span>
+                                    ) : (
+                                      <span
+                                        title={short ? "Omborda buyurtma sonidan kam — toʼldirish kerak" : "Ombordagi joriy qoldiq"}
+                                        className={short ? "text-red-500 font-semibold" : onHand <= 5 ? "text-amber-600" : "text-slate-500"}
+                                      >
+                                        {onHand}{short ? " ⚠" : ""}
+                                      </span>
+                                    )}
                                   </td>
                                   <td className="h-12 px-6 text-md transition duration-300 border-t border-l first:border-l-0 border-brand-100 stroke-slate-500 text-slate-500 first-letter:uppercase ">
                                     {category}

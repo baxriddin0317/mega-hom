@@ -1,6 +1,7 @@
 'use client'
 import CategoryDetail from "@/components/admin/CategoryDetail";
 import ProductDetail from "@/components/admin/ProductDetail";
+import OmborDetail from "@/components/admin/OmborDetail";
 import DashboardKPIs from "@/components/admin/DashboardKPIs";
 import LowStockCard from "@/components/admin/LowStockCard";
 import TopSellers from "@/components/admin/TopSellers";
@@ -40,6 +41,11 @@ const Admin = () => {
 
   const canCatalog = isManagerPlus(me?.role);
   const canStaff = isAdminPlus(me?.role);
+
+  // Ombor tab headline: total on-hand units + a low-stock badge that nudges the
+  // owner to restock. Same reorder-point rule as the Ombor/Inventory views.
+  const stockUnits = products.reduce((s, p) => s + (Number(p.quantity) || 0), 0);
+  const lowCount = products.filter((p) => (p.quantity ?? 0) <= (p.lowStockThreshold ?? 5)).length;
 
   return (
     <div className="brand-mesh min-h-screen pb-10">
@@ -167,10 +173,37 @@ const Admin = () => {
                 </div>
               )}
             </Tab>
+            {/* Ombor — stock control at a glance; low-stock badge draws the eye */}
+            <Tab className="p-1 outline-none cursor-pointer">
+              {({ selected }: { selected: boolean }) => (
+                <div className={`shiny-border ${selected ? "shiny-border--active" : ""} transition-transform duration-200 hover:-translate-y-0.5`}>
+                  <div className={`relative flex items-center gap-4 px-5 py-3.5 rounded-[14px] transition-colors ${selected ? "bg-brand" : "bg-white hover:bg-brand-50"}`}>
+                    <div className={`size-11 inline-flex items-center justify-center rounded-xl ${selected ? "bg-white/15" : "bg-brand-50"}`}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width={26} height={26} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={selected ? "text-white" : "text-brand-500"}>
+                        <path d="m7.5 4.27 9 5.15" /><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" /><path d="M3.3 7 12 12l8.7-5" /><path d="M12 22V12" />
+                      </svg>
+                    </div>
+                    <div className="text-left">
+                      <h2 className={`font-bold text-3xl leading-none ${selected ? "text-white" : "text-brand-500"}`}>{stockUnits.toLocaleString("ru-RU")}</h2>
+                      <p className={`text-sm font-semibold mt-1 ${selected ? "text-white/90" : "text-slate-500"}`}>Ombor <span className="font-normal opacity-70">dona</span></p>
+                    </div>
+                    {lowCount > 0 && (
+                      <span
+                        title={`${lowCount} ta mahsulot kam qoldi`}
+                        className={`absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 inline-flex items-center justify-center rounded-full text-[11px] font-bold ${selected ? "bg-white text-brand" : "bg-red-500 text-white"}`}
+                      >
+                        {lowCount}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </Tab>
           </TabList>
           <TabPanels>
             <TabPanel><ProductDetail /></TabPanel>
             <TabPanel><CategoryDetail /></TabPanel>
+            <TabPanel><OmborDetail /></TabPanel>
           </TabPanels>
           </TabGroup>
         </>

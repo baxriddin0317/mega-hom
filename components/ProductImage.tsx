@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import NoPhoto from "@/components/NoPhoto";
 
-export { firstImageUrl } from "@/lib/images";
+export { firstImageUrl, firstThumbUrl } from "@/lib/images";
 
 type FillProps = {
   fill: true;

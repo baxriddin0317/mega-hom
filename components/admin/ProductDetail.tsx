@@ -21,6 +21,7 @@ import ProductImportExport from "./ProductImportExport";
 import ProductQRCode from "./ProductQRCode";
 import { productUrl } from "@/lib/site";
 import { optimizeImageForUpload } from "@/utils/optimizeImage";
+import { uploadThumbSafe } from "@/lib/uploadThumb";
 
 const th =
   "h-12 px-4 lg:px-6 text-md font-bold fontPara border-l first:border-l-0 border-brand-100 text-slate-700 bg-slate-100";
@@ -308,7 +309,8 @@ const ProductDetail = () => {
           const sref = ref(fireStorage, `products/${folder}/${safeName}`);
           await uploadBytes(sref, optimized);
           const url = await getDownloadURL(sref);
-          return { url, path: sref.fullPath };
+          const thumb = await uploadThumbSafe(optimized, folder, safeName);
+          return { url, path: sref.fullPath, ...thumb };
         })
       );
       await patchProduct(item.id, {

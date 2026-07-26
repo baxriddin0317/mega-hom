@@ -63,6 +63,11 @@ export interface Supplier {
 export interface ImageT {
   url: string;
   path: string;
+  // Optional small (≤400px WebP) variant for grids/cards — cuts storefront bytes
+  // vs. serving the full ≤1600px photo. Absent on images uploaded before thumbs
+  // existed; consumers fall back to `url` (see firstThumbUrl).
+  thumbUrl?: string;
+  thumbPath?: string;
 }
 
 // A business expense (chiqim) — rent, salary, utilities, restock cost, ads, etc.
