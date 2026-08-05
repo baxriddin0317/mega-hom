@@ -42,6 +42,7 @@ export interface StoreSaleInput {
   cashierUid: string;
   cashierName?: string;
   paymentMethod: string;
+  soldAtMs?: number;        // sale moment override (ms) — record a sale that physically happened earlier
 }
 
 interface StoreState {
@@ -203,9 +204,13 @@ export const useOrderStore = create<StoreState>((set, get) => ({
     const batch = writeBatch(fireDB);
     const orderRef = doc(collection(fireDB, "orders"));
     const orderNo = genOrderNo();
+    // The order's `date` (what every report/period filter buckets on) honors the
+    // till's chosen sale moment; the stockMovements rows below keep the REAL
+    // write time (serverTimestamp) so backdating never rewrites the audit trail.
+    const { soldAtMs, ...saleDoc } = sale;
     // stockApplied:true — the decrement happens HERE atomically, so the
     // fulfillment hook never double-applies a POS sale.
-    batch.set(orderRef, { ...sale, orderNo, channel: "store", status: "sotildi", stockApplied: true, date: new Date() });
+    batch.set(orderRef, { ...saleDoc, orderNo, channel: "store", status: "sotildi", stockApplied: true, date: soldAtMs ? new Date(soldAtMs) : new Date() });
     for (const item of sale.basketItems) {
       batch.update(doc(fireDB, "products", item.id), { quantity: increment(-item.quantity) });
       // Auto-log the sale into the stock ledger (a "sotuv" row per line).
