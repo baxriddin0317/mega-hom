@@ -99,6 +99,7 @@ const useProductStore = create<ProductStore>((set) => ({
             vatRate: productData.vatRate,
             barcode: productData.barcode,
             quantity: productData.quantity,
+            model3d: productData.model3d,
             time: productData.time,
             date: productData.date,
             storageFileId: productData.storageFileId

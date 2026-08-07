@@ -2,6 +2,7 @@
 import Loader from "@/components/Loader";
 import { fireStorage } from "@/firebase/FirebaseConfig";
 import { CategoryI, ImageT, ProductT } from "@/lib/types";
+import Model3DManager from "@/components/admin/Model3DManager";
 import { isManagerPlus } from "@/lib/roles";
 import { useRole } from "@/components/admin/RoleContext";
 import NoAccess from "@/components/admin/NoAccess";
@@ -10,7 +11,7 @@ import useCategoryStore from "@/zustand/useCategoryStore";
 import useProductStore from "@/zustand/useProductStore";
 import useStockStore from "@/zustand/useStockStore";
 import { Switch } from "@headlessui/react";
-import { Timestamp } from "firebase/firestore";
+import { Timestamp, deleteField } from "firebase/firestore";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import ProductImage from "@/components/ProductImage";
 import { useRouter } from "next/navigation";
@@ -89,6 +90,7 @@ const UpdateProductContent = ({ params }: { params: Promise<{ id: string }> }) =
         vatRate: product.vatRate ?? 12,
         barcode: product.barcode ?? '',
         quantity: product.quantity,
+        model3d: product.model3d,
         time: product.time,
         date: product.date,
         storageFileId: product.storageFileId
@@ -175,8 +177,14 @@ const UpdateProductContent = ({ params }: { params: Promise<{ id: string }> }) =
     if (!projectId) return;
     const oldQty = Number(product?.quantity) || 0;
     const newQty = Number(updatedProduct.quantity) || 0;
+    // model3d: Firestore rejects `undefined` values and merge:true keeps an
+    // omitted field — so "admin removed the model" must write deleteField(),
+    // and "never had one" must not send the key at all.
+    const payload: Record<string, unknown> = { ...updatedProduct };
+    if (product?.model3d && !updatedProduct.model3d) payload.model3d = deleteField();
+    else if (!updatedProduct.model3d) delete payload.model3d;
     try {
-      await updateProduct(projectId, updatedProduct);
+      await updateProduct(projectId, payload as unknown as ProductT);
     } catch {
       toast.error("Saqlab boʼlmadi (ruxsat yoki internet)");
       return;
@@ -421,6 +429,11 @@ const UpdateProductContent = ({ params }: { params: Promise<{ id: string }> }) =
             vatRate={updatedProduct.vatRate ?? 12}
           />
         </div>
+        <Model3DManager
+          folder={updatedProduct.storageFileId || projectId}
+          value={updatedProduct.model3d}
+          onChange={(m) => setUpdatedProduct((prev) => ({ ...prev, model3d: m }))}
+        />
         <div className="flex items-start divide-x-2 gap-4 mb-3">
           <div>
             <span className="text-sm text-brand block capitalize mb-1">

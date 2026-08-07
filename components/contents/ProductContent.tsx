@@ -4,17 +4,37 @@ import { FormattedPrice } from '@/utils'
 import useCartProductStore from '@/zustand/useCartStore'
 import useProductStore from '@/zustand/useProductStore'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import ProductImage from '@/components/ProductImage'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { BsCartDash } from 'react-icons/bs'
 import { GoArrowLeft } from 'react-icons/go'
+import { TbAugmentedReality } from 'react-icons/tb'
+
+// 3D/AR viewer pulls in <model-viewer> (three.js) — load it only when a product
+// actually has a model AND the shopper switches to the 3D tab.
+const ProductViewer3D = dynamic(() => import('@/components/ProductViewer3D'), {
+  ssr: false,
+  loading: () => (
+    <div className="relative w-full aspect-square rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-center">
+      <span className="size-7 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+    </div>
+  ),
+});
 
 const ProductContent = ({productID}: {productID:string}) => {
   const { fetchSingleProduct, loading, product } = useProductStore();
   const { addToBasket, getItemQuantity, load } = useCartProductStore();
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [mediaMode, setMediaMode] = useState<'photo' | '3d'>('photo');
+  // ?ar=1 (QR handoff from desktop) → open straight into the 3D/AR view once
+  // the product arrives. Read once on mount; no useSearchParams/Suspense dance.
+  const arRequested = useRef(false);
+  useEffect(() => {
+    arRequested.current = new URLSearchParams(window.location.search).get('ar') === '1';
+  }, []);
 
   // Fetch only when the id changes (NOT on every cart change — that re-fetched
   // the product on each add-to-cart).
@@ -31,7 +51,16 @@ const ProductContent = ({productID}: {productID:string}) => {
   // Reset the gallery to the first photo when navigating to a different product.
   useEffect(() => {
     setSelectedImage(0);
+    setMediaMode('photo');
   }, [productID]);
+
+  // Honor the QR deep link the moment a 3D-capable product is on screen.
+  useEffect(() => {
+    if (arRequested.current && product?.model3d?.glbUrl) {
+      setMediaMode('3d');
+      arRequested.current = false;
+    }
+  }, [product]);
 
   if (loading) {
     return (
@@ -88,8 +117,45 @@ const ProductContent = ({productID}: {productID:string}) => {
       </Link>
       <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-20 py-6">
         {/* Gallery: large selected image + thumbnail strip (shows ALL photos a
-            product has — e.g. one product in several colours). */}
+            product has — e.g. one product in several colours). Products with a
+            3D model additionally get the Foto | 3D·AR switcher. */}
         <div className="w-full sm:w-[448px] space-y-3">
+          {product.model3d?.glbUrl && (
+            <div className="flex gap-1.5">
+              <button
+                type="button"
+                onClick={() => setMediaMode('photo')}
+                aria-pressed={mediaMode === 'photo'}
+                className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition-colors ${
+                  mediaMode === 'photo'
+                    ? 'bg-brand text-white border-brand'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-brand-50'
+                }`}
+              >
+                Foto
+              </button>
+              <button
+                type="button"
+                onClick={() => setMediaMode('3d')}
+                aria-pressed={mediaMode === '3d'}
+                className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold border transition-colors ${
+                  mediaMode === '3d'
+                    ? 'bg-brand text-white border-brand'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-brand-50'
+                }`}
+              >
+                <TbAugmentedReality className="text-base" /> 3D · AR
+              </button>
+            </div>
+          )}
+          {mediaMode === '3d' && product.model3d?.glbUrl ? (
+            <ProductViewer3D
+              productId={productID}
+              title={product.title}
+              model={product.model3d}
+              poster={active?.url}
+            />
+          ) : (
           <div className="relative w-full aspect-square rounded-xl overflow-hidden border border-slate-100">
             <ProductImage
               key={active?.path || active?.url || "none"}
@@ -101,7 +167,8 @@ const ProductContent = ({productID}: {productID:string}) => {
               alt={product.title}
             />
           </div>
-          {images.length > 1 && (
+          )}
+          {mediaMode === 'photo' && images.length > 1 && (
             <div className="flex gap-2 flex-wrap">
               {images.map((img, i) => (
                 <button

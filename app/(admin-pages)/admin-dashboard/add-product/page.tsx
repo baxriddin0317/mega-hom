@@ -1,7 +1,8 @@
 "use client";
 import Loader from "@/components/Loader";
 import { fireDB, fireStorage } from "@/firebase/FirebaseConfig";
-import { CategoryI, ImageT } from "@/lib/types";
+import { CategoryI, ImageT, Model3D } from "@/lib/types";
+import Model3DManager from "@/components/admin/Model3DManager";
 import { isManagerPlus } from "@/lib/roles";
 import { useRole } from "@/components/admin/RoleContext";
 import NoAccess from "@/components/admin/NoAccess";
@@ -31,6 +32,9 @@ const AddProductPage = () => {
   // uuid on every upload batch and then overwrote storageFileId with it, leaving
   // it pointing at an empty folder when images were added in more than one go.)
   const [storageFileId] = useState(() => uuidv4());
+  // 3D/AR model assets — held apart from the string-typed form state; only
+  // included in the doc when actually uploaded (Firestore rejects undefined).
+  const [model3d, setModel3d] = useState<Model3D | undefined>(undefined);
 
   useEffect(() => {
     fetchCategories();
@@ -149,6 +153,7 @@ const AddProductPage = () => {
         costPrice: Number(product.costPrice) || 0,
         quantity: qty,
         storageFileId,
+        ...(model3d ? { model3d } : {}),
       });
       // Initial stock opens the product's ledger card as a "kirim" row, so the
       // Harakatlar history is complete from day one. A failed row must never
@@ -407,6 +412,7 @@ const AddProductPage = () => {
           </div>
           <VatExplainer price={Number(product.price) || 0} vatRate={product.vatRate} />
         </div>
+        <Model3DManager folder={storageFileId} value={model3d} onChange={setModel3d} />
         <div className="flex items-start divide-x-2 gap-4 mb-3">
           <div>
             <span className="text-sm text-brand block capitalize mb-1">

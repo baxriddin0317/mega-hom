@@ -1,6 +1,28 @@
 import { Timestamp } from "firebase/firestore";
 import { OrderStatus } from "./orderStatus";
 
+// One color/finish variant of a product's 3D model (own GLB, optional USDZ).
+export interface Model3DVariant {
+  name: string;     // chip label, e.g. "Oq", "Yongʼoq", "Sonoma"
+  glbUrl: string;   // public download URL (Android/Web + AR Scene Viewer)
+  glbPath: string;  // storage path (for delete)
+  usdzUrl?: string; // optional iOS AR Quick Look asset; omitted → model-viewer
+  usdzPath?: string; //   auto-generates USDZ from the GLB on demand
+}
+
+// WebAR / 3D block of a product. The default model + optional color variants +
+// admin-entered real dimensions (sm). Rendered with <model-viewer>: 360° view,
+// AR on Android (Scene Viewer/WebXR) and iPhone (Quick Look).
+export interface Model3D {
+  glbUrl: string;
+  glbPath: string;
+  usdzUrl?: string;
+  usdzPath?: string;
+  defaultName?: string; // chip label for the default model when variants exist
+  variants?: Model3DVariant[];
+  dims?: { l?: number; w?: number; h?: number }; // uzunlik/kenglik/balandlik, sm
+}
+
 export interface ProductT {
   id: string;
   title: string;
@@ -9,6 +31,7 @@ export interface ProductT {
   category: string;
   subCategory:string;
   description: string;
+  model3d?: Model3D;         // 3D/AR koʼrish — absent = classic photo-only product
   quantity: number;          // on-hand stock (decrements on POS sale + web-order fulfillment)
   costPrice?: number;        // tan narx — unit purchase cost; basis for margin/profit (never shown to customers)
   lowStockThreshold?: number; // reorder point — stock at/under this flags "kam qoldi" (default 5)

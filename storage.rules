@@ -27,9 +27,13 @@ service firebase.storage {
   match /b/{bucket}/o {
     match /products/{allPaths=**} {
       allow read: if true;
+      // Images (<20MB) or 3D/AR models (<40MB: GLB model/gltf-binary, USDZ
+      // model/vnd.usdz+zip) — the WebAR feature uploads under products/*/model/.
       allow create, update: if request.auth != null
-        && request.resource.size < 20 * 1024 * 1024
-        && request.resource.contentType.matches('image/.*');
+        && ((request.resource.size < 20 * 1024 * 1024
+              && request.resource.contentType.matches('image/.*'))
+            || (request.resource.size < 40 * 1024 * 1024
+              && request.resource.contentType.matches('model/.*')));
       allow delete: if request.auth != null;
     }
   }

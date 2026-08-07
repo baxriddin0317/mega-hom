@@ -111,6 +111,16 @@ const ProductDetail = () => {
   };
 
   /* ------------------------- delete (with 5s undo) ------------------------- */
+  // listAll() returns only the CURRENT level's files — recurse into prefixes so
+  // subfolders (thumbs/, model/ — the 3D assets) are cleaned up too, not
+  // orphaned in Storage forever.
+  const deleteStorageFolder = async (path: string): Promise<void> => {
+    const res = await listAll(ref(fireStorage, path));
+    await Promise.all([
+      ...res.items.map((r) => deleteObject(r)),
+      ...res.prefixes.map((p) => deleteStorageFolder(p.fullPath)),
+    ]);
+  };
   const deleteWithUndo = (items: ProductT[]) => {
     if (!items.length) return;
     const ids = items.map((i) => i.id);
@@ -131,8 +141,7 @@ const ProductDetail = () => {
           // before storageFileId existed (uploads used products/{docId}/).
           const folderId = item.storageFileId || item.id;
           if (folderId) {
-            const folder = await listAll(ref(fireStorage, `products/${folderId}`));
-            await Promise.all(folder.items.map((r) => deleteObject(r)));
+            await deleteStorageFolder(`products/${folderId}`);
           }
           await deleteProduct(item.id);
         } catch (err) {
