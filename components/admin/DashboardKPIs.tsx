@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useOrderStore } from "@/zustand/useOrderStore";
 import { orderStatusMeta } from "@/lib/orderStatus";
 import { aggregateOrders, startOfToday, startOfDaysAgo } from "@/lib/reports";
@@ -12,7 +12,7 @@ const card = "rounded-xl border border-brand-100 bg-brand-50 px-4 py-3 text-cent
 const cardContainer = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const cardItem = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } };
 
-type Period = "today" | "7d" | "30d";
+export type Period = "today" | "7d" | "30d";
 const PERIODS: { key: Period; label: string }[] = [
   { key: "today", label: "Bugun" },
   { key: "7d", label: "7 kun" },
@@ -21,10 +21,11 @@ const PERIODS: { key: Period; label: string }[] = [
 
 // At-a-glance pulse on the dashboard, computed in-memory from orders via the
 // shared reports reducer. Revenue/profit EXCLUDE cancelled (bekor) orders.
-const DashboardKPIs = () => {
+// Period state lives in the page so the toggle drives BOTH the KPI cards and
+// the charts below them.
+const DashboardKPIs = ({ period, onPeriod }: { period: Period; onPeriod: (p: Period) => void }) => {
   const { orders, fetchAllOrders } = useOrderStore();
   const { expenses, fetchExpenses } = useExpenseStore();
-  const [period, setPeriod] = useState<Period>("today");
   const reduce = useReducedMotion();
 
   useEffect(() => {
@@ -62,7 +63,7 @@ const DashboardKPIs = () => {
         {PERIODS.map((p) => (
           <button
             key={p.key}
-            onClick={() => setPeriod(p.key)}
+            onClick={() => onPeriod(p.key)}
             className={`px-3 py-1 text-sm rounded-lg border transition-colors ${
               period === p.key
                 ? "bg-brand-500 text-white border-brand-500"

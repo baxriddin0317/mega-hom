@@ -156,6 +156,38 @@ export function dailySeries(orders: Order[], days: number, now = new Date()): Da
   return buckets;
 }
 
+export interface DayChannelPoint {
+  label: string; // "DD.MM"
+  web: number;   // sayt revenue that day
+  store: number; // doʼkon (POS) revenue that day
+}
+
+/** Daily revenue split by sales channel for the last N days (oldest → newest).
+ *  Realized orders only; missing channel counts as "web" (pre-POS orders). */
+export function dailyChannelSeries(orders: Order[], days: number, now = new Date()): DayChannelPoint[] {
+  const start = startOfToday(now) - (days - 1) * 86_400_000;
+  const buckets: DayChannelPoint[] = [];
+  for (let i = 0; i < days; i++) {
+    const d = new Date(start + i * 86_400_000);
+    buckets.push({
+      label: `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}`,
+      web: 0,
+      store: 0,
+    });
+  }
+  for (const o of orders) {
+    if (!isRealized(o)) continue;
+    const ms = orderMs(o);
+    if (ms < start) continue;
+    const idx = Math.floor((ms - start) / 86_400_000);
+    if (idx < 0 || idx >= days) continue;
+    const rev = Number(o.totalPrice) || 0;
+    if ((o.channel ?? "web") === "store") buckets[idx].store += rev;
+    else buckets[idx].web += rev;
+  }
+  return buckets;
+}
+
 export interface CategoryPoint {
   category: string;
   revenue: number;

@@ -1,5 +1,5 @@
 'use client'
-import DashboardKPIs from "@/components/admin/DashboardKPIs";
+import DashboardKPIs, { Period } from "@/components/admin/DashboardKPIs";
 import TopSellers from "@/components/admin/TopSellers";
 import MeshBackdrop from "@/components/MeshBackdrop";
 import { useRole } from "@/components/admin/RoleContext";
@@ -9,14 +9,37 @@ import { signOut } from "firebase/auth";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-// Bosh sahifa = Hisobotlar, xolos. KPI kartalari + eng koʼp sotilganlar; hech
-// qanday boshqaruv elementi yoʼq. Mahsulot/kategoriya/zaxira bilan ishlash
-// toʼliq Ombor sahifasiga koʼchdi (/admin-dashboard/inventory) — bitta joyda.
+// Charts pull in recharts (~100KB) — load them after the KPI shell paints
+// instead of blocking the dashboard's first render on the chart bundle.
+const DashboardCharts = dynamic(() => import("@/components/admin/DashboardCharts"), {
+  ssr: false,
+  loading: () => (
+    <div className="px-5 mb-4">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className={`h-40 rounded-xl border border-brand-100 bg-white animate-pulse ${
+              i === 0 ? "md:col-span-2 xl:col-span-2" : i === 3 ? "md:col-span-2 xl:col-span-4" : ""
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  ),
+});
+
+// Bosh sahifa = Hisobotlar, xolos. KPI kartalari + grafiklar + eng koʼp
+// sotilganlar; hech qanday boshqaruv elementi yoʼq. Mahsulot/kategoriya/zaxira
+// bilan ishlash toʼliq Ombor sahifasiga koʼchdi (/admin-dashboard/inventory).
 const Admin = () => {
   const me = useRole();
   const router = useRouter();
+  const [period, setPeriod] = useState<Period>("today");
 
   const handleLogout = async () => {
     try {
@@ -119,8 +142,9 @@ const Admin = () => {
 
       {canCatalog ? (
         <>
-          {/* Hisobotlar — davr KPIlari va eng koʼp sotilganlar */}
-          <DashboardKPIs />
+          {/* Hisobotlar — davr KPIlari, grafiklar va eng koʼp sotilganlar */}
+          <DashboardKPIs period={period} onPeriod={setPeriod} />
+          <DashboardCharts period={period} />
           <TopSellers />
         </>
       ) : (
