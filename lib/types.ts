@@ -75,6 +75,18 @@ export interface StockMovement {
   createdAt: Timestamp;
 }
 
+// One leg of a POS payment. A sale may be paid with several legs at once
+// (naqd UZS + USD banknotes + karta). Amounts are TENDERED values in UZS —
+// qaytim (change, given in UZS) = Σ amount − totalPrice, so the record stays
+// audit-true. USD legs snapshot the banknotes taken and the kurs used.
+export type SalePaymentMethod = "naqd" | "usd" | "karta";
+export interface SalePayment {
+  method: SalePaymentMethod;
+  amount: number;      // UZS value of this leg (usd: amountUsd × rate, rounded)
+  amountUsd?: number;  // usd legs: dollars physically taken
+  rate?: number;       // usd legs: UZS-per-USD kurs applied at the till
+}
+
 // Yetkazib beruvchi (supplier) — where restocked goods come from.
 export interface Supplier {
   id: string;
@@ -123,7 +135,8 @@ export interface Order {
   lastChangedAt?: Timestamp;
   channel?: "web" | "store";  // where the sale came from (default web)
   cashierUid?: string;        // staff who rang up an in-store (POS) sale
-  paymentMethod?: string;     // e.g. "naqd" (cash) — POS sales
+  paymentMethod?: string;     // summary: "naqd" | "usd" | "karta" | "aralash" (mixed)
+  payments?: SalePayment[];   // POS split-payment breakdown (tendered per method)
   discount?: number;          // POS chegirma subtracted from the item subtotal to reach totalPrice
   uid?: string;               // auth uid of the signed-in buyer (web checkout; guests omit)
   clientEmail?: string;       // buyer email when known (signed-in web checkout)

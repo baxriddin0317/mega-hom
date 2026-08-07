@@ -12,6 +12,7 @@
 // window, then fill it with printReceipt(input, win) once the sale resolves.
 
 import { FormattedPrice } from "@/utils";
+import { SalePayment } from "@/lib/types";
 
 export interface ReceiptItem {
   title: string;
@@ -33,6 +34,7 @@ export interface ReceiptInput {
   cash?: number;           // tendered (POS cash sale)
   change?: number;
   paymentMethod?: string;
+  payments?: SalePayment[]; // split-payment legs — when present, overrides the cash/paymentMethod rows
   deliveryAddress?: string;
   note?: string;
   widthMm?: 58 | 80;       // thermal roll width (default 80)
@@ -41,9 +43,21 @@ export interface ReceiptInput {
 
 const PAY_LABELS: Record<string, string> = {
   naqd: "Naqd",
+  usd: "USD",
   karta: "Karta",
   card: "Karta",
   transfer: "Oʼtkazma",
+  aralash: "Aralash",
+};
+
+/** Human label for one payment leg — "Naqd (UZS)" / "USD $10 × 12 650" / "Karta". */
+export const paymentLegLabel = (p: SalePayment): string => {
+  if (p.method === "usd") {
+    const usd = Number(p.amountUsd) || 0;
+    const rate = Number(p.rate) || 0;
+    return `USD $${usd % 1 === 0 ? usd : usd.toFixed(2)}${rate > 0 ? ` × ${FormattedPrice(rate)}` : ""}`;
+  }
+  return p.method === "karta" ? "Karta" : "Naqd (UZS)";
 };
 
 const winFeatures = (widthMm: 58 | 80) => `width=${widthMm === 58 ? 300 : 380},height=640`;
@@ -186,7 +200,20 @@ export function printReceipt(input: ReceiptInput, presetWin?: Window | null): bo
   d.body.appendChild(tot);
   if (vatTotal > 0) row("shu jumladan QQS", `${FormattedPrice(Math.round(vatTotal))} UZS`, "pay muted");
 
-  if (input.paymentMethod || input.cash !== undefined) {
+  if (input.payments && input.payments.length > 0) {
+    // Split-payment breakdown: one row per leg (tendered amounts), then qaytim.
+    rule();
+    row(
+      "Toʼlov",
+      input.payments.length > 1 ? "Aralash" : PAY_LABELS[input.payments[0].method] ?? "Naqd",
+      "pay"
+    );
+    for (const p of input.payments) {
+      row(paymentLegLabel(p), `${FormattedPrice(Number(p.amount) || 0)} UZS`, "pay muted");
+    }
+    if (input.change !== undefined && input.change > 0)
+      row("Qaytim", `${FormattedPrice(input.change)} UZS`, "pay");
+  } else if (input.paymentMethod || input.cash !== undefined) {
     rule();
     row("Toʼlov", PAY_LABELS[input.paymentMethod ?? ""] ?? (input.paymentMethod || "Naqd"), "pay");
     if (input.cash !== undefined) row("Berildi", `${FormattedPrice(input.cash)} UZS`, "pay");

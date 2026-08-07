@@ -1,7 +1,7 @@
 import {create} from "zustand";
 import { collection, deleteDoc, doc, addDoc, getDocs, increment, query, orderBy, limit, onSnapshot, serverTimestamp, updateDoc, where, writeBatch, FieldValue, Timestamp } from "firebase/firestore";
 import { fireDB } from "@/firebase/FirebaseConfig";
-import { ImageT, Order } from "@/lib/types";
+import { ImageT, Order, SalePayment } from "@/lib/types";
 import { DEFAULT_ORDER_STATUS, OrderStatus, isStockCommitting } from "@/lib/orderStatus";
 
 // Cap how many (most-recent) orders the admin loads at once. Bounds Firestore
@@ -41,7 +41,8 @@ export interface StoreSaleInput {
   clientPhone: string;
   cashierUid: string;
   cashierName?: string;
-  paymentMethod: string;
+  paymentMethod: string;    // summary: "naqd" | "usd" | "karta" | "aralash"
+  payments?: SalePayment[]; // split-payment legs (tendered per method)
   soldAtMs?: number;        // sale moment override (ms) — record a sale that physically happened earlier
 }
 
@@ -207,10 +208,20 @@ export const useOrderStore = create<StoreState>((set, get) => ({
     // The order's `date` (what every report/period filter buckets on) honors the
     // till's chosen sale moment; the stockMovements rows below keep the REAL
     // write time (serverTimestamp) so backdating never rewrites the audit trail.
-    const { soldAtMs, ...saleDoc } = sale;
+    // Strip meta fields; `payments` is re-added only when non-empty (Firestore
+    // rejects undefined values, and an empty array is just noise on the doc).
+    const { soldAtMs, payments, ...saleDoc } = sale;
     // stockApplied:true — the decrement happens HERE atomically, so the
     // fulfillment hook never double-applies a POS sale.
-    batch.set(orderRef, { ...saleDoc, orderNo, channel: "store", status: "sotildi", stockApplied: true, date: soldAtMs ? new Date(soldAtMs) : new Date() });
+    batch.set(orderRef, {
+      ...saleDoc,
+      ...(payments && payments.length > 0 ? { payments } : {}),
+      orderNo,
+      channel: "store",
+      status: "sotildi",
+      stockApplied: true,
+      date: soldAtMs ? new Date(soldAtMs) : new Date(),
+    });
     for (const item of sale.basketItems) {
       batch.update(doc(fireDB, "products", item.id), { quantity: increment(-item.quantity) });
       // Auto-log the sale into the stock ledger (a "sotuv" row per line).

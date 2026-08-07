@@ -11,7 +11,7 @@ import { useRole } from "./RoleContext";
 import useProductStore from "@/zustand/useProductStore";
 import useCustomerStore from "@/zustand/useCustomerStore";
 import { useOrderStore, StoreSaleItem } from "@/zustand/useOrderStore";
-import { ProductT, CustomerT } from "@/lib/types";
+import { ProductT, CustomerT, SalePayment } from "@/lib/types";
 import { FormattedPrice } from "@/utils";
 import { printReceipt, openReceiptWindow } from "@/utils/receipt";
 
@@ -28,7 +28,13 @@ const POSContent = () => {
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
   const [custPicked, setCustPicked] = useState<CustomerT | null>(null);
-  const [cash, setCash] = useState("");
+  // Split payment: any combination of naqd UZS + USD banknotes + karta.
+  // All empty = the quick flow (exact naqd UZS), same as before.
+  const [payNaqd, setPayNaqd] = useState("");
+  const [payUsd, setPayUsd] = useState("");   // entered in DOLLARS
+  const [payKarta, setPayKarta] = useState("");
+  const [usdRate, setUsdRate] = useState(0);  // UZS per 1 USD
+  const [rateSource, setRateSource] = useState("");
   const [discount, setDiscount] = useState("");
   const [busy, setBusy] = useState(false);
   const [printChek, setPrintChek] = useState(true);
@@ -54,6 +60,36 @@ const POSContent = () => {
     const t = setInterval(() => setNowMs(Date.now()), 15_000);
     return () => clearInterval(t);
   }, []);
+
+  // USD kurs: last manual value first (works offline), then the official CBU
+  // daily rate on top when the API answers. Manual edits at the till win for
+  // the rest of the session and persist for tomorrow's offline fallback.
+  useEffect(() => {
+    try {
+      const saved = Number(localStorage.getItem("pos.usdRate")) || 0;
+      if (saved > 0) {
+        setUsdRate(saved);
+        setRateSource("qoʼlda");
+      }
+    } catch { /* private mode */ }
+    fetch("/api/usd-rate")
+      .then((r) => r.json())
+      .then((d: { rate?: number | null }) => {
+        const r = Number(d?.rate) || 0;
+        if (r > 0) {
+          setUsdRate(Math.round(r));
+          setRateSource("CBU");
+        }
+      })
+      .catch(() => { /* offline — manual kurs stays */ });
+  }, []);
+
+  const changeRate = (raw: string) => {
+    const n = Math.max(0, Math.round(parseFloat(raw) || 0));
+    setUsdRate(n);
+    setRateSource("qoʼlda");
+    try { localStorage.setItem("pos.usdRate", String(n)); } catch { /* ignore */ }
+  };
 
   // The sheet only makes sense with items in it — auto-close when the basket
   // empties (last line removed, or a completed sale).
@@ -110,8 +146,15 @@ const POSContent = () => {
   const totalQty = useMemo(() => basket.reduce((a, b) => a + b.quantity, 0), [basket]);
   const discountNum = Math.min(Math.max(0, parseFloat(discount) || 0), subtotal);
   const total = Math.max(0, subtotal - discountNum);
-  const cashNum = parseFloat(cash) || 0;
-  const change = cashNum - total;
+  // Payment math — all legs converted to UZS; qaytim is always given in UZS.
+  const naqdNum = Math.max(0, parseFloat(payNaqd) || 0);
+  const usdNum = Math.max(0, parseFloat(payUsd) || 0);
+  const kartaNum = Math.max(0, parseFloat(payKarta) || 0);
+  const usdUzs = Math.round(usdNum * usdRate);
+  const anyPayEntered = payNaqd !== "" || payUsd !== "" || payKarta !== "";
+  const paid = naqdNum + usdUzs + kartaNum;
+  const shortfall = Math.max(0, total - paid);
+  const qaytim = Math.max(0, paid - total);
   // QQS contained in the payable total (extraction from VAT-inclusive prices,
   // discount allocated pro-rata) — the same figure the printed chek shows.
   const basketVat = useMemo(() => {
@@ -216,7 +259,11 @@ const POSContent = () => {
   const pay = async () => {
     if (payingRef.current) return; // already processing — blocks double-tap / both pay buttons
     if (!basket.length) return toast.error("Savatcha boʼsh");
-    if (cash && cashNum < total) return toast.error("Naqd pul yetarli emas");
+    if (anyPayEntered && paid < total)
+      return toast.error(`Toʼlov yetarli emas — yana ${FormattedPrice(total - paid)} UZS kerak`);
+    if (usdNum > 0 && usdRate <= 0) return toast.error("USD kursini kiriting");
+    // Change is handed back in cash — a card can never be charged above JAMI.
+    if (kartaNum > total) return toast.error("Karta summasi JAMIdan oshmasin (qaytim faqat naqddan)");
     // Backdating is for the PAST (a sale from the paper daftar) — a future-dated
     // order would sit outside every report period until its day arrives.
     if (saleAtMs !== null && saleAtMs > Date.now() + 60_000) {
@@ -237,7 +284,15 @@ const POSContent = () => {
       price: b.price,
       vatRate: b.vatRate,
     }));
-    const tendered = cash !== "" ? cashNum : undefined;
+    // Snapshot the payment legs BEFORE the form clears. Nothing entered = the
+    // quick flow: exact naqd UZS for the full total (previous behavior).
+    const payments: SalePayment[] = [];
+    if (naqdNum > 0) payments.push({ method: "naqd", amount: naqdNum });
+    if (usdNum > 0) payments.push({ method: "usd", amount: usdUzs, amountUsd: usdNum, rate: usdRate });
+    if (kartaNum > 0) payments.push({ method: "karta", amount: kartaNum });
+    if (payments.length === 0) payments.push({ method: "naqd", amount: total });
+    const payMethod = payments.length > 1 ? "aralash" : payments[0].method;
+    const changeGiven = anyPayEntered ? qaytim : 0;
     const soldMs = saleAtMs ?? Date.now(); // freeze the moment ONCE — doc and chek must agree
     try {
       const { orderNo } = await addStoreSale({
@@ -250,13 +305,15 @@ const POSContent = () => {
         clientPhone: phone.trim(),
         cashierUid: me?.uid ?? "",
         cashierName: me?.name ?? "",
-        paymentMethod: "naqd",
+        paymentMethod: payMethod,
+        payments,
         soldAtMs: soldMs,
       });
       toast.success(
-        backdated
+        (backdated
           ? `Sotuv yakunlandi (${fmtDT(soldMs)}) — ${FormattedPrice(total)} UZS`
-          : `Sotuv yakunlandi — ${FormattedPrice(total)} UZS`
+          : `Sotuv yakunlandi — ${FormattedPrice(total)} UZS`) +
+          (changeGiven > 0 ? ` · Qaytim: ${FormattedPrice(changeGiven)}` : "")
       );
       if (chekWin) {
         printReceipt(
@@ -270,9 +327,9 @@ const POSContent = () => {
             subtotal,
             discount: discountNum,
             total,
-            cash: tendered,
-            change: tendered !== undefined ? tendered - total : undefined,
-            paymentMethod: "naqd",
+            payments,
+            change: changeGiven,
+            paymentMethod: payMethod,
             widthMm: chekWidth,
             heading: "CHEK",
           },
@@ -283,7 +340,9 @@ const POSContent = () => {
       setPhone("");
       setName("");
       setCustPicked(null);
-      setCash("");
+      setPayNaqd("");
+      setPayUsd("");
+      setPayKarta("");
       setDiscount("");
       setSaleAt(""); // next sale goes back on the live clock — a stale backdate can't leak forward
       searchRef.current?.focus();
@@ -454,17 +513,129 @@ const POSContent = () => {
             </button>
           </div>
         )}
-        <input
-          type="number"
-          inputMode="numeric"
-          value={cash}
-          onChange={(e) => setCash(e.target.value)}
-          placeholder="Berilgan naqd pul"
-          className={inputCls}
-        />
-        {cash !== "" && cashNum >= total && (
-          <p className="text-sm text-green-600 font-medium">Qaytim: {FormattedPrice(change)} UZS</p>
-        )}
+        {/* Toʼlov — naqd UZS / USD / karta, istalgan kombinatsiyada (boʼlib).
+            "Toʼliq" fills that leg with whatever the other legs don't cover. */}
+        <div className="rounded-lg border border-slate-200 p-2.5 space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold text-slate-500">Toʼlov — boʼlib toʼlash mumkin</p>
+            {anyPayEntered && (
+              <button
+                type="button"
+                onClick={() => { setPayNaqd(""); setPayUsd(""); setPayKarta(""); }}
+                className="text-[11px] text-slate-400 hover:text-slate-600 underline"
+              >
+                Tozalash
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="w-[72px] shrink-0 text-sm text-slate-600">💵 Naqd</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              value={payNaqd}
+              onChange={(e) => setPayNaqd(e.target.value)}
+              placeholder="0 (UZS)"
+              className={`${inputCls} !py-1.5 text-right`}
+            />
+            <button
+              type="button"
+              onClick={() => setPayNaqd(String(Math.max(0, total - usdUzs - kartaNum)))}
+              className="shrink-0 px-2.5 py-1.5 rounded-lg border border-slate-200 text-[11px] font-semibold text-slate-500 hover:bg-slate-50"
+            >
+              Toʼliq
+            </button>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-[72px] shrink-0 text-sm text-slate-600">💲 USD</span>
+              <input
+                type="number"
+                inputMode="decimal"
+                min={0}
+                step="0.01"
+                value={payUsd}
+                onChange={(e) => setPayUsd(e.target.value)}
+                placeholder="0 ($)"
+                className={`${inputCls} !py-1.5 text-right`}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (usdRate <= 0) return toast.error("Avval USD kursini kiriting");
+                  const rem = Math.max(0, total - naqdNum - kartaNum);
+                  setPayUsd(rem > 0 ? String(Math.ceil((rem / usdRate) * 100) / 100) : "");
+                }}
+                className="shrink-0 px-2.5 py-1.5 rounded-lg border border-slate-200 text-[11px] font-semibold text-slate-500 hover:bg-slate-50"
+              >
+                Toʼliq
+              </button>
+            </div>
+            <div className="flex items-center justify-between gap-2 mt-1 pl-[80px] text-[11px] text-slate-400">
+              <span className="flex items-center gap-1">
+                kurs:
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  value={usdRate || ""}
+                  onChange={(e) => changeRate(e.target.value)}
+                  placeholder="—"
+                  title="1 USD necha soʼm (qoʼlda oʼzgartirsa boʼladi)"
+                  className="w-[76px] px-1.5 py-0.5 border border-slate-200 rounded text-right text-slate-600 outline-none focus:ring-1 focus:ring-brand-300"
+                />
+                {rateSource && <span>({rateSource})</span>}
+              </span>
+              {usdNum > 0 && usdRate > 0 && (
+                <span>= {FormattedPrice(usdUzs)} UZS</span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="w-[72px] shrink-0 text-sm text-slate-600">💳 Karta</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              value={payKarta}
+              onChange={(e) => setPayKarta(e.target.value)}
+              placeholder="0 (UZS)"
+              className={`${inputCls} !py-1.5 text-right`}
+            />
+            <button
+              type="button"
+              onClick={() => setPayKarta(String(Math.max(0, total - naqdNum - usdUzs)))}
+              className="shrink-0 px-2.5 py-1.5 rounded-lg border border-slate-200 text-[11px] font-semibold text-slate-500 hover:bg-slate-50"
+            >
+              Toʼliq
+            </button>
+          </div>
+
+          {anyPayEntered ? (
+            <div className="flex items-center justify-between text-xs rounded-lg bg-slate-50 px-2.5 py-1.5">
+              <span className="text-slate-500">
+                Toʼlandi: <b className="text-slate-700">{FormattedPrice(paid)}</b> UZS
+              </span>
+              {shortfall > 0 ? (
+                <span className="text-red-500 font-semibold">
+                  Yetmayapti: {FormattedPrice(shortfall)} UZS
+                </span>
+              ) : (
+                <span className="text-green-600 font-semibold">
+                  Qaytim: {FormattedPrice(qaytim)} UZS
+                </span>
+              )}
+            </div>
+          ) : (
+            <p className="text-[11px] text-slate-400">
+              Boʼsh qoldirilsa — aniq summada naqd (UZS) deb yoziladi.
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center justify-between mt-3 text-sm">
@@ -494,10 +665,10 @@ const POSContent = () => {
         disabled={busy || basket.length === 0}
         className="w-full mt-3 px-4 py-3 rounded-lg bg-brand-500 text-white font-bold hover:bg-brand-600 disabled:opacity-50"
       >
-        {busy ? "Saqlanmoqda…" : "Toʼlash (naqd)"}
+        {busy ? "Saqlanmoqda…" : "Toʼlash"}
       </button>
       <p className="text-[11px] text-slate-400 mt-2">
-        Hozircha naqd sotuv qayd etiladi. Fiskal chek va karta/QR toʼlovi keyingi bosqichda
+        Naqd (UZS/USD) va karta — istalgan kombinatsiyada. Fiskal chek keyingi bosqichda
         (roʼyxatdan oʼtgan virtual kassa orqali).
       </p>
     </>

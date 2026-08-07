@@ -144,6 +144,15 @@ const OrderContent = () => {
       discount: order.discount,
       subtotal: order.discount ? order.totalPrice + order.discount : undefined,
       paymentMethod: order.paymentMethod,
+      // Split-payment sales: reprint the same per-leg breakdown + qaytim as the
+      // original chek (qaytim = tendered − total, derived from the stored legs).
+      payments: order.payments,
+      change: order.payments?.length
+        ? Math.max(
+            0,
+            order.payments.reduce((s, p) => s + (Number(p.amount) || 0), 0) - order.totalPrice
+          )
+        : undefined,
       deliveryAddress: order.deliveryAddress,
       note: order.note,
       heading: order.channel === "store" ? "CHEK" : "BUYURTMA",
