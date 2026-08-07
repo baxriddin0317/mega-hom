@@ -212,11 +212,11 @@ const QRCodesPage = () => {
       {/* boshqaruv paneli — chop etishda koʼrinmaydi */}
       <div className="print:hidden">
         <Link
-          href="/admin-dashboard"
+          href="/admin-dashboard/inventory"
           className="flex items-center gap-1 w-fit text-gray-500 text-sm hover:text-brand-500 mb-2"
         >
           <GoArrowLeft className="text-xl" />
-          <span>Admin panelga qaytish</span>
+          <span>Ombor</span>
         </Link>
         <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
           <div>

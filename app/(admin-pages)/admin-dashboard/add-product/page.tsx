@@ -7,6 +7,7 @@ import { useRole } from "@/components/admin/RoleContext";
 import NoAccess from "@/components/admin/NoAccess";
 import VatExplainer from "@/components/admin/VatExplainer";
 import useCategoryStore from "@/zustand/useCategoryStore";
+import useStockStore from "@/zustand/useStockStore";
 import { Switch } from "@headlessui/react";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
@@ -22,6 +23,7 @@ const AddProductPage = () => {
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<CategoryI | null>(null);
   const { categories, fetchCategories } = useCategoryStore();
+  const { logCorrection } = useStockStore();
   const me = useRole();
   // Stable per-form storage folder id, generated once. Every image for this new
   // product goes under products/<storageFileId>/ and the SAME id is saved on the
@@ -140,15 +142,36 @@ const AddProductPage = () => {
       const productRef = collection(fireDB, "products");
       // Coerce the money/stock fields to real numbers so margin + inventory math
       // is correct (the form holds them as strings for clean empty inputs).
-      await addDoc(productRef, {
+      const qty = Number(product.quantity) || 0;
+      const docRef = await addDoc(productRef, {
         ...product,
         price: Number(product.price) || 0,
         costPrice: Number(product.costPrice) || 0,
-        quantity: Number(product.quantity) || 0,
+        quantity: qty,
         storageFileId,
       });
+      // Initial stock opens the product's ledger card as a "kirim" row, so the
+      // Harakatlar history is complete from day one. A failed row must never
+      // block the creation itself.
+      if (qty > 0) {
+        try {
+          await logCorrection({
+            productId: docRef.id,
+            productTitle: product.title,
+            oldQty: 0,
+            newQty: qty,
+            reason: "Yangi mahsulot — boshlangʼich zaxira",
+            type: "kirim",
+            unitCost: Number(product.costPrice) || 0,
+            actorUid: me?.uid ?? "",
+            actorName: me?.name ?? "",
+          });
+        } catch (e) {
+          console.warn("Initial stock ledger row failed:", e);
+        }
+      }
       toast.success("Mahsulot qoʼshildi");
-      navigate.push("/admin-dashboard");
+      navigate.push("/admin-dashboard/inventory");
       setLoading(false);
     } catch (error) {
       console.log(error);

@@ -54,7 +54,7 @@ const StockMovementModal = ({ product, onClose }: { product: ProductT; onClose: 
         actorUid: me?.uid ?? "",
         actorName: me?.name ?? "",
       });
-      toast.success("Zaxira yangilandi");
+      toast.success(`Zaxira: ${current} → ${newQty} dona (Ombor tarixiga yozildi)`);
       onClose();
     } catch {
       toast.error("Saqlab boʼlmadi (ruxsat yoki internet)");

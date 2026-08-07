@@ -7,6 +7,8 @@ import { MdDeleteForever } from "react-icons/md";
 import { BsQrCode } from "react-icons/bs";
 import { FiCopy, FiLink, FiBox } from "react-icons/fi";
 import useProductStore from "@/zustand/useProductStore";
+import useStockStore from "@/zustand/useStockStore";
+import { useRole } from "./RoleContext";
 import toast, { Toast } from "react-hot-toast";
 import { ProductT } from "@/lib/types";
 import { deleteObject, getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
@@ -32,6 +34,8 @@ const chip =
 
 const ProductDetail = () => {
   const { products, loading, fetchProducts, deleteProduct, bulkPatch, patchProduct } = useProductStore();
+  const { applyMovement } = useStockStore();
+  const me = useRole();
   const [qrProduct, setQrProduct] = useState<ProductT | null>(null);
   const [stockProduct, setStockProduct] = useState<ProductT | null>(null);
   const [search, setSearch] = useState("");
@@ -254,15 +258,27 @@ const ProductDetail = () => {
     setEditingStockId(item.id);
     setEditStock(String(item.quantity ?? 0));
   };
+  // Inline qoldiq edit = a "tuzatish" movement, NOT a silent patch: quantity and
+  // the ledger row commit atomically, so every change shows up in Ombor →
+  // Harakatlar with kim/qachon/nega. (Before, this bypassed the ledger and the
+  // history looked like nothing happened — deeply confusing.)
   const saveStock = async (id: string) => {
     const val = parseInt(editStock, 10);
     const current = products.find((p) => p.id === id);
     setEditingStockId(null);
     if (isNaN(val) || val < 0 || !current || current.quantity === val) return;
     if (val > 10_000_000) return toast.error("Zaxira qiymati juda katta");
+    const old = current.quantity ?? 0;
     try {
-      await patchProduct(id, { quantity: val });
-      toast.success("Zaxira yangilandi");
+      await applyMovement({
+        product: current,
+        type: "tuzatish",
+        qty: val,
+        reason: "Jadvaldan qoʼlda tahrirlandi",
+        actorUid: me?.uid ?? "",
+        actorName: me?.name ?? "",
+      });
+      toast.success(`Zaxira: ${old} → ${val} dona (Ombor tarixiga yozildi)`);
     } catch {
       toast.error("Saqlab boʼlmadi");
     }

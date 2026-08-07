@@ -8,6 +8,7 @@ import NoAccess from "@/components/admin/NoAccess";
 import VatExplainer from "@/components/admin/VatExplainer";
 import useCategoryStore from "@/zustand/useCategoryStore";
 import useProductStore from "@/zustand/useProductStore";
+import useStockStore from "@/zustand/useStockStore";
 import { Switch } from "@headlessui/react";
 import { Timestamp } from "firebase/firestore";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
@@ -24,6 +25,7 @@ const emptyTimestamp = new Timestamp(0, 0);
 const UpdateProductContent = ({ params }: { params: Promise<{ id: string }> }) => {
   const navigate = useRouter();
   const { product, loading, fetchSingleProduct, updateProduct } = useProductStore();
+  const { logCorrection } = useStockStore();
   const { categories, fetchCategories } = useCategoryStore();
   const me = useRole();
   const [load, setLoad] = useState(false);
@@ -170,11 +172,38 @@ const UpdateProductContent = ({ params }: { params: Promise<{ id: string }> }) =
   };
 
   const handleUpdate = async () => {
-    if (projectId) {
+    if (!projectId) return;
+    const oldQty = Number(product?.quantity) || 0;
+    const newQty = Number(updatedProduct.quantity) || 0;
+    try {
       await updateProduct(projectId, updatedProduct);
-      toast.success('Mahsulot yangilandi');
-      navigate.push('/admin-dashboard');
+    } catch {
+      toast.error("Saqlab boʼlmadi (ruxsat yoki internet)");
+      return;
     }
+    // Quantity changed through the edit form → append a "tuzatish" row so the
+    // change is visible in Ombor → Harakatlar (the product doc itself is already
+    // saved above; this is the audit-trail half). A failed row must not undo a
+    // successful save — report it instead.
+    if (product && newQty !== oldQty) {
+      try {
+        await logCorrection({
+          productId: projectId,
+          productTitle: updatedProduct.title,
+          oldQty,
+          newQty,
+          reason: "Mahsulot tahriri sahifasidan",
+          actorUid: me?.uid ?? "",
+          actorName: me?.name ?? "",
+        });
+        toast.success(`Mahsulot yangilandi · zaxira ${oldQty} → ${newQty} dona tarixga yozildi`);
+      } catch {
+        toast.success("Mahsulot yangilandi (zaxira tarixiga yozib boʼlmadi)");
+      }
+    } else {
+      toast.success("Mahsulot yangilandi");
+    }
+    navigate.push("/admin-dashboard/inventory");
   };
 
   if (!isManagerPlus(me?.role)) return <NoAccess min="manager" />;

@@ -118,7 +118,9 @@ const useProductStore = create<ProductStore>((set) => ({
   },
 
   // Update a product. merge:true so a partial write (e.g. a future inline
-  // single-field edit) can never blank the fields it didn't include.
+  // single-field edit) can never blank the fields it didn't include. Rethrows
+  // on failure so the edit form can show a real error instead of a false
+  // "Mahsulot yangilandi".
   updateProduct: async (id: string, updatedProduct: ProductT) => {
     set({ loading: true });
     try {
@@ -127,6 +129,7 @@ const useProductStore = create<ProductStore>((set) => ({
     } catch (error) {
       console.error('Error updating product:', error);
       set({ loading: false });
+      throw error;
     }
   },
 

@@ -4,11 +4,12 @@ import Link from "next/link";
 import { FiAlertTriangle } from "react-icons/fi";
 import useProductStore from "@/zustand/useProductStore";
 
-// Inventory → dashboard: surfaces exactly what needs reordering. A product is
-// "low" when on-hand <= its lowStockThreshold (default 5); out-of-stock (0)
-// sorts first. Each chip links straight to that product's restock form, so the
-// alert is one click from the fix. Hidden entirely when nothing is low.
-const LowStockCard = () => {
+// Surfaces exactly what needs reordering. A product is "low" when on-hand <=
+// its lowStockThreshold (default 5); out-of-stock (0) sorts first. Each chip
+// links straight to that product's restock form, so the alert is one click from
+// the fix. Hidden entirely when nothing is low. `bare` drops the page-level
+// horizontal padding for embedding inside an already-padded container (Ombor).
+const LowStockCard = ({ bare = false }: { bare?: boolean }) => {
   const { products, fetchProducts } = useProductStore();
 
   useEffect(() => {
@@ -26,7 +27,7 @@ const LowStockCard = () => {
   if (low.length === 0) return null;
 
   return (
-    <div className="px-5 mb-4">
+    <div className={bare ? "mb-4" : "px-5 mb-4"}>
       <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4">
         <div className="flex items-center gap-2 mb-2.5">
           <FiAlertTriangle className="text-amber-500" />

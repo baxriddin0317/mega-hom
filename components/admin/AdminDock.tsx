@@ -30,7 +30,7 @@ const AdminDock = () => {
   const adm = isAdminPlus(me?.role);
 
   const primary: Item[] = [
-    { icon: FiHome, label: "Asosiy", href: "/admin-dashboard" },
+    { icon: FiHome, label: "Hisobot", href: "/admin-dashboard" },
     { icon: FiShoppingCart, label: "Kassa", href: "/admin-dashboard/pos" },
     { icon: FiClipboard, label: "Buyurtma", href: "/admin-dashboard/orders" },
     ...(mgr ? [{ icon: FiBox, label: "Ombor", href: "/admin-dashboard/inventory" }] : []),

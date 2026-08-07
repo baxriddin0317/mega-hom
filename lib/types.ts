@@ -45,7 +45,8 @@ export interface StockMovement {
   newQty?: number;       // resulting on-hand (manual moves only; auto-logged sales omit it)
   reason: string;        // free-text note (e.g. "yangi partiya", "shikastlangan")
   supplierName?: string; // kirim: which supplier the goods came from
-  orderNo?: string;      // sotuv/qaytarish: the linked order's number
+  unitCost?: number;     // kirim: per-unit purchase cost at receipt (tan narx snapshot)
+  orderNo?: string;      // sotuv/qaytarish: linked order no; kirim: receiving doc no (KR-…)
   actorName: string;
   actorUid: string;
   createdAt: Timestamp;

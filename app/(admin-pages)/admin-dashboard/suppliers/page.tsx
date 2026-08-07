@@ -58,11 +58,11 @@ const SuppliersPage = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       <Link
-        href="/admin-dashboard"
+        href="/admin-dashboard/inventory?tab=kirim"
         className="flex items-center gap-1 w-fit text-gray-500 text-sm hover:text-brand-500 mb-3"
       >
         <GoArrowLeft className="text-xl" />
-        <span>Admin panelga qaytish</span>
+        <span>Ombor — Kirim qabul</span>
       </Link>
       <h1 className="text-xl font-bold text-brand-500 mb-4">Yetkazib beruvchilar</h1>
 

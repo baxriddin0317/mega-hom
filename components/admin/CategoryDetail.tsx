@@ -14,25 +14,35 @@ const CategoryDetail = () => {
     fetchCategories();
   }, [fetchCategories]);
 
+  // Confirm + await: a category is a storefront navigation node — one stray tap
+  // must not silently drop it, and the toast must reflect the real outcome.
   const handleDelete = async (item: CategoryI) => {
-    if (item.id) {
-      deleteCategory(item.id);
-      toast.success("Product Deleted Successfully");
+    if (!item.id) return;
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(`"${item.name}" kategoriyasi oʼchirilsinmi? Mahsulotlar oʼchmaydi, lekin bu boʼlim doʼkondan yoʼqoladi.`)
+    )
+      return;
+    try {
+      await deleteCategory(item.id);
+      toast.success("Kategoriya oʼchirildi");
+    } catch {
+      toast.error("Oʼchirib boʼlmadi");
     }
-  };  
+  };
 
   return (
     <div>
       <div>
         <div className="py-5 flex flex-wrap gap-3 justify-between items-center">
           {/* text  */}
-          <h1 className=" text-xl text-brand-600 font-bold">All Category</h1>
+          <h1 className=" text-xl text-brand-600 font-bold">Kategoriyalar</h1>
           {/* Import / Export + Add Category  */}
           <div className="flex items-center gap-2 flex-wrap">
             <CategoryImportExport />
             <Link href={"/admin-dashboard/add-category"}>
               <button className="px-5 py-2 bg-brand-50 border border-brand-100 rounded-lg">
-                Add Category
+                Kategoriya qoʼshish
               </button>
             </Link>
           </div>
@@ -50,25 +60,25 @@ const CategoryDetail = () => {
                   scope="col"
                   className="py-2 px-4 lg:px-6 text-md border-l first:border-l-0 border-brand-100 text-slate-700 bg-slate-100 font-bold fontPara"
                 >
-                  S.No.
+                  №
                 </th>
                 <th
                   scope="col"
                   className="py-2 px-4 lg:px-6 text-md font-bold fontPara border-l first:border-l-0 border-brand-100 text-slate-700 bg-slate-100"
                 >
-                  Category Name
+                  Kategoriya nomi
                 </th>
                 <th
                   scope="col"
                   className="py-2 px-4 lg:px-6 text-md font-bold fontPara border-l first:border-l-0 border-brand-100 text-slate-700 bg-slate-100"
                 >
-                  Sub Categories
+                  Subkategoriyalar
                 </th>
                 <th
                   scope="col"
                   className="py-2 px-4 lg:px-6 text-md font-bold fontPara border-l first:border-l-0 border-brand-100 text-slate-700 bg-slate-100"
                 >
-                  Delete
+                  Oʼchirish
                 </th>
               </tr>
               {categories.map((item, idx) => (
