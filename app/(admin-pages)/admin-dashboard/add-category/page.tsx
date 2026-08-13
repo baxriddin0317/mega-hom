@@ -56,7 +56,7 @@ const AddCategory = () => {
       toast.success("Kategoriya qoʼshildi");
       navigate.push("/admin-dashboard/inventory?tab=kategoriyalar");
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("Kategoriya qoʼshib boʼlmadi");
     }
   };

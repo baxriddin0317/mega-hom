@@ -8,6 +8,7 @@ import CustomerImportExport from "../admin/CustomerImportExport";
 import AddCustomerModal from "../admin/AddCustomerModal";
 import { useRole } from "../admin/RoleContext";
 import useCustomerStore from "@/zustand/useCustomerStore";
+import NoAccess from "@/components/admin/NoAccess";
 import { isManagerPlus } from "@/lib/roles";
 import { FormattedPrice } from "@/utils";
 import { CustomerT } from "@/lib/types";
@@ -100,13 +101,7 @@ const CustomerContent = () => {
     </button>
   );
 
-  if (!isManagerPlus(me?.role)) {
-    return (
-      <div className="max-w-3xl mx-auto px-4 py-16 text-center text-slate-500">
-        Bu sahifa faqat menejer va administratorlar uchun.
-      </div>
-    );
-  }
+  if (!isManagerPlus(me?.role)) return <NoAccess min="manager" />;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">

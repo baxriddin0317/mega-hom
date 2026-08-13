@@ -48,11 +48,61 @@ const CategoryDetail = () => {
           </div>
         </div>
         {/* Loading  */}
-        <div className="flex justify-center relative top-20">
-          {loading && <Loader />}
+        {loading && categories.length === 0 && (
+          <div className="flex justify-center py-16">
+            <Loader />
+          </div>
+        )}
+
+        {/* Empty state — every other admin list has one; this table used to
+            render bare headers over an empty body. */}
+        {!loading && categories.length === 0 && (
+          <div className="text-center text-slate-500 py-16">
+            Hozircha kategoriya yoʼq. &quot;Kategoriya qoʼshish&quot; tugmasi bilan boshlang.
+          </div>
+        )}
+
+        {/* Mobile: card list. The sibling tab (Mahsulotlar) already ships this
+            pattern; this table was the last admin list that only scrolled
+            sideways on a phone. */}
+        <div className="lg:hidden space-y-2">
+          {categories.map((item, idx) => (
+            <div
+              key={item.id ?? idx}
+              className="rounded-xl border border-brand-100 bg-white p-3 shadow-sm"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="font-semibold text-slate-700 first-letter:uppercase">
+                  {item.name}
+                </h3>
+                <button
+                  onClick={() => handleDelete(item)}
+                  aria-label={`${item.name} kategoriyasini oʼchirish`}
+                  className="shrink-0"
+                >
+                  <MdDeleteForever className="text-red-500 text-2xl cursor-pointer" />
+                </button>
+              </div>
+              {item.subcategory.length > 0 ? (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {item.subcategory.map((tag, i) => (
+                    <span
+                      key={i}
+                      className="rounded-md py-0.5 px-2.5 text-xs bg-slate-100 text-slate-600"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-slate-400 mt-2">Subkategoriya yoʼq</p>
+              )}
+            </div>
+          ))}
         </div>
+
         {/* table  */}
-        <div className="w-full overflow-x-auto">
+        <div className="w-full overflow-x-auto hidden lg:block">
           <table className="w-full text-left border border-collapse sm:border-separate border-brand-100 text-brand-400">
             <tbody>
               <tr>

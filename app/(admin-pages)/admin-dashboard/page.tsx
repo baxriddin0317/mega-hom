@@ -63,7 +63,7 @@ const Admin = () => {
           <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[#5B0D0D]/45 via-transparent to-[#5B0D0D]/45" />
           <div className="relative z-10 flex items-center justify-between text-white px-5 py-3">
           <div>
-            <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
+            <h1 className="text-2xl font-bold text-white">Admin panel</h1>
             <p className="text-xs text-white/70">Hisobotlar</p>
           </div>
           <div className="hidden lg:flex items-center gap-4">

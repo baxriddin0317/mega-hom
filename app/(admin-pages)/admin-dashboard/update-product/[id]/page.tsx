@@ -1,6 +1,8 @@
 "use client"
 import Loader from "@/components/Loader";
 import { fireStorage } from "@/firebase/FirebaseConfig";
+import Link from "next/link";
+import { GoArrowLeft } from "react-icons/go";
 import { CategoryI, ImageT, ProductT } from "@/lib/types";
 import Model3DManager from "@/components/admin/Model3DManager";
 import { isManagerPlus } from "@/lib/roles";
@@ -219,6 +221,26 @@ const UpdateProductContent = ({ params }: { params: Promise<{ id: string }> }) =
 
   if(loading){
     return <div className="flex items-center justify-center h-screen"><Loader /></div>
+  }
+
+  // Loaded but nothing came back (deleted product, bad id, denied read) — the
+  // form used to render with its empty defaults, which looks like a real product
+  // whose fields were all wiped, and saving it would have created that.
+  if (!product) {
+    return (
+      <div className="max-w-md mx-auto text-center bg-white border border-brand-100 rounded-xl p-8 mt-16 shadow-sm">
+        <h2 className="text-lg font-bold text-slate-700">Mahsulot topilmadi</h2>
+        <p className="text-slate-500 mt-1 text-sm">
+          Bu mahsulot oʼchirilgan yoki havola notoʼgʼri.
+        </p>
+        <Link
+          href="/admin-dashboard/inventory"
+          className="mt-5 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-500 text-white font-semibold hover:bg-brand-600"
+        >
+          <GoArrowLeft /> Mahsulotlarga qaytish
+        </Link>
+      </div>
+    );
   }
 
   return (

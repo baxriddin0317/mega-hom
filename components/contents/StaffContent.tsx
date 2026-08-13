@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import Loader from "../Loader";
 import useStaffStore, { StaffUser } from "@/zustand/useStaffStore";
 import { useRole } from "../admin/RoleContext";
+import NoAccess from "../admin/NoAccess";
 import { ASSIGNABLE_ROLES, ROLE_LABELS, Role, isAdminPlus, isStaffPlus, rankOf } from "@/lib/roles";
 
 const th = "h-12 px-4 lg:px-6 text-md font-bold border-l first:border-l-0 border-brand-100 text-slate-700 bg-slate-100";
@@ -94,13 +95,7 @@ const StaffContent = () => {
     }
   };
 
-  if (!isAdminPlus(me?.role)) {
-    return (
-      <div className="max-w-3xl mx-auto px-4 py-16 text-center text-slate-500">
-        Bu sahifa faqat administratorlar uchun.
-      </div>
-    );
-  }
+  if (!isAdminPlus(me?.role)) return <NoAccess min="admin" />;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">

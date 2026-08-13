@@ -8,11 +8,15 @@ import Loader from "../Loader";
 import ContactButtons from "./ContactButtons";
 import ManualOrderModal from "./ManualOrderModal";
 import useCustomerStore from "@/zustand/useCustomerStore";
+import NoAccess from "./NoAccess";
+import { useRole } from "./RoleContext";
+import { isManagerPlus } from "@/lib/roles";
 import { FormattedPrice } from "@/utils";
 
 const kpi = "rounded-xl border border-brand-100 bg-brand-50 px-4 py-3";
 
 const CustomerProfile = ({ phone }: { phone: string }) => {
+  const me = useRole();
   const { customers, loading, fetchCustomers, upsertEnrichment } = useCustomerStore();
   const [tagInput, setTagInput] = useState("");
   const [name, setName] = useState("");
@@ -38,6 +42,12 @@ const CustomerProfile = ({ phone }: { phone: string }) => {
       setHydrated(true);
     }
   }, [customer, hydrated]);
+
+  // The Mijozlar LIST is manager+, but this detail route had no gate at all —
+  // a staff-rank user who typed /admin-dashboard/customers/<phone> got the full
+  // profile with the "Yana sotish" action. Firestore rules already reject the
+  // enrichment writes, so this closes the UI half of the same boundary.
+  if (!isManagerPlus(me?.role)) return <NoAccess min="manager" />;
 
   if (loading && !customer) {
     return (

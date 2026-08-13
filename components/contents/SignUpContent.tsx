@@ -129,7 +129,7 @@ const SignUpContent = () => {
     } catch (error) {
       const code = error instanceof FirebaseError ? error.code : "auth/unknown-error";
       toast.error(friendlySignupError(code, !email));
-      console.log(error);
+      console.error(error);
       setLoading(false);
     }
   };

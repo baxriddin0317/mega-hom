@@ -26,6 +26,12 @@ const useStaffStore = create<StaffStoreState>((set) => {
       if (started) return;
       started = true;
       set({ loading: true });
+      // NOTE: deliberately unfiltered. Hiring works by having the new employee
+      // sign up on /sign-up (which writes role 'user') and then an admin
+      // promoting them here — filtering to staff roles would hide exactly the
+      // account that needs promoting. The read grows with storefront signups;
+      // when that becomes a cost problem the fix is a search-by-email lookup,
+      // not a where() clause.
       onSnapshot(
         query(collection(fireDB, "user")),
         (snap) => {
