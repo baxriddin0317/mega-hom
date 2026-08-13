@@ -6,7 +6,7 @@ import { FiChevronUp, FiClock, FiMinus, FiPlus, FiSearch, FiShoppingCart, FiTras
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import Loader from "../Loader";
-import ProductImage, { firstImageUrl } from "@/components/ProductImage";
+import ProductImage, { firstThumbUrl } from "@/components/ProductImage";
 import { useRole } from "./RoleContext";
 import useProductStore from "@/zustand/useProductStore";
 import useCustomerStore from "@/zustand/useCustomerStore";
@@ -737,7 +737,7 @@ const POSContent = () => {
                 >
                   <div className="relative aspect-square w-full overflow-hidden rounded mb-1 bg-slate-50">
                     <ProductImage
-                      src={firstImageUrl(p.productImageUrl)}
+                      src={firstThumbUrl(p.productImageUrl)}
                       alt={p.title}
                       fill
                       className="object-cover"

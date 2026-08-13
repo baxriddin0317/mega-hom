@@ -12,11 +12,12 @@ import { useRole } from "./RoleContext";
 import toast, { Toast } from "react-hot-toast";
 import { ProductT } from "@/lib/types";
 import { deleteObject, getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
+import { IMAGE_UPLOAD_METADATA } from "@/lib/storageMeta";
 import { Timestamp, addDoc, collection, doc, writeBatch } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 import { FormattedPrice } from "@/utils";
 import { fireDB, fireStorage } from "@/firebase/FirebaseConfig";
-import ProductImage, { firstImageUrl } from "@/components/ProductImage";
+import ProductImage, { firstThumbUrl } from "@/components/ProductImage";
 import ProductRow from "./ProductRow";
 import StockMovementModal from "./StockMovementModal";
 import ProductImportExport from "./ProductImportExport";
@@ -332,7 +333,7 @@ const ProductDetail = () => {
           const optimized = await optimizeImageForUpload(file);
           const safeName = `${uuidv4().slice(0, 8)}-${optimized.name}`;
           const sref = ref(fireStorage, `products/${folder}/${safeName}`);
-          await uploadBytes(sref, optimized);
+          await uploadBytes(sref, optimized, IMAGE_UPLOAD_METADATA);
           const url = await getDownloadURL(sref);
           const thumb = await uploadThumbSafe(optimized, folder, safeName);
           return { url, path: sref.fullPath, ...thumb };
@@ -360,7 +361,7 @@ const ProductDetail = () => {
         fill
         sizes="80px"
         className="object-cover"
-        src={firstImageUrl(item.productImageUrl)}
+        src={firstThumbUrl(item.productImageUrl)}
         alt=""
       />
       {(item.productImageUrl?.length ?? 0) > 1 && (

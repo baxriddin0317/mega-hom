@@ -6,7 +6,7 @@ import Quantity from "../Quantity";
 import { BsCartDash } from "react-icons/bs";
 import SubmitModal from "../Modal";
 import { FormattedPrice } from '@/utils'
-import ProductImage, { firstImageUrl } from "@/components/ProductImage";
+import ProductImage, { firstThumbUrl } from "@/components/ProductImage";
 
 const CartProductContent = () => {
   const [open, setOpen] = useState(false);
@@ -40,7 +40,7 @@ const CartProductContent = () => {
                   fill
                   sizes="(max-width: 640px) 112px, 176px"
                   className="absolute size-full object-cover"
-                  src={firstImageUrl(cart.productImageUrl)}
+                  src={firstThumbUrl(cart.productImageUrl)}
                   alt={cart.title}
                 />
               </div>

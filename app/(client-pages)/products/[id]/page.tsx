@@ -46,15 +46,25 @@ const Products = ({ params }: { params: Promise<{ id: string }> }) => {
       );
     }
 
-    // Update pagination state
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    setPaginatedProducts(filtered.slice(startIndex, endIndex));
-    setTotalPages(Math.ceil(filtered.length / itemsPerPage));
+    // Update pagination state. Clamp the page to the filtered result so a live
+    // catalog change (onSnapshot) or a stale page number can never strand the
+    // shopper past the last page with an empty grid.
+    const pages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+    const page = Math.min(currentPage, pages);
+    if (page !== currentPage) setCurrentPage(page);
+
+    const startIndex = (page - 1) * itemsPerPage;
+    setPaginatedProducts(filtered.slice(startIndex, startIndex + itemsPerPage));
+    setTotalPages(pages);
   }, [products, selectedSubCategory, currentPage, category]);
   
+  // Switching subcategory MUST rewind to page 1. Without it, a shopper on page 5
+  // of "All" who tapped a subcategory landed on page 5 of a 1-page result — an
+  // empty grid reading "No products" for a subcategory that actually has stock,
+  // with no highlighted page button to show where they were.
   const handleCategoryChange = (category: string) => {
     setSelectedSubCategory(category);
+    setCurrentPage(1);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -81,7 +91,7 @@ const Products = ({ params }: { params: Promise<{ id: string }> }) => {
                 : "bg-gray-200 hover:bg-gray-300"
             }`}
             onClick={() => handleCategoryChange("all")}>
-              All
+              Hammasi
             </Tab>
             {category.subcategory.map((c,id) => (
               <Tab
@@ -124,12 +134,13 @@ const Products = ({ params }: { params: Promise<{ id: string }> }) => {
                         title={card.title}
                         description={card.description}
                         currentPrice={card.price}
+                        quantity={card.quantity}
                         href={`/product/${card.id}`}
                       />
                     ))
                   ) : (
-                    <div className="flex items-center justify-center uppercase col-span-4 w-full h-28">
-                      No products
+                    <div className="flex items-center justify-center col-span-4 w-full h-28 text-slate-500">
+                      Bu boʼlimda hozircha mahsulot yoʼq
                     </div>
                   )}
                 </div>
@@ -140,7 +151,9 @@ const Products = ({ params }: { params: Promise<{ id: string }> }) => {
       </div>
 
       {/* Pagination */}
-      {products.length > itemsPerPage && <div className="flex justify-center mt-4">
+      {/* Gate on the FILTERED page count, not the whole catalog — a 3-product
+          subcategory was showing a pager with a single dead page. */}
+      {totalPages > 1 && <div className="flex justify-center mt-4">
         <nav
           className="isolate inline-flex -space-x-px rounded-md shadow-sm"
           aria-label="Pagination"
