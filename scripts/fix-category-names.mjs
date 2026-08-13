@@ -11,14 +11,14 @@
  * category actually exists in the `categories` collection. Anything it doesn't
  * recognise is reported, never guessed at.
  *
- * Auth: reuses the gcloud login already on the machine (megahomeweb@gmail.com).
+ * Auth: uses the existing `gcloud` CLI login (megahomeweb@gmail.com by default;
+ * override with GCLOUD_ACCOUNT). See scripts/lib/gcp.mjs.
  *
  * Usage:
  *   node scripts/fix-category-names.mjs --dry-run    # report only
  *   node scripts/fix-category-names.mjs              # apply
  */
-import { getFirestore } from "firebase-admin/firestore";
-import { initAdmin } from "./lib/adminApp.mjs";
+import { listDocuments, patchDocument } from "./lib/gcp.mjs";
 
 const PROJECT_ID = "megahome-a139c";
 const DRY = process.argv.includes("--dry-run");
@@ -29,12 +29,8 @@ const ALIASES = {
   "Xavfsizlik va Safar": "Havfsizlik va safar",
 };
 
-const { via } = initAdmin({ projectId: PROJECT_ID });
-console.log(`auth: ${via}`);
-const db = getFirestore();
-
-const cats = await db.collection("categories").get();
-const realNames = new Set(cats.docs.map((d) => d.data().name));
+const cats = await listDocuments(PROJECT_ID, "categories");
+const realNames = new Set(cats.map((c) => c.data.name));
 console.log("Kategoriyalar:", [...realNames].join(" | "), "\n");
 
 // Refuse to move products into a category that doesn't exist — that would just
@@ -46,14 +42,14 @@ for (const target of new Set(Object.values(ALIASES))) {
   }
 }
 
-const snap = await db.collection("products").get();
+const products = await listDocuments(PROJECT_ID, "products", {
+  mask: ["category"],
+});
 let fixed = 0;
 const unknown = new Map();
-let batch = db.batch();
-let pending = 0;
 
-for (const doc of snap.docs) {
-  const current = doc.data().category;
+for (const doc of products) {
+  const current = doc.data.category;
   if (!current || realNames.has(current)) continue;
 
   const target = ALIASES[current];
@@ -64,18 +60,10 @@ for (const doc of snap.docs) {
 
   console.log(`  ${doc.id}  "${current}" -> "${target}"`);
   fixed++;
-  if (!DRY) {
-    batch.update(doc.ref, { category: target });
-    // Firestore caps a batch at 500 writes.
-    if (++pending === 400) {
-      await batch.commit();
-      batch = db.batch();
-      pending = 0;
-    }
-  }
+  // One PATCH per doc with an updateMask of just `category` — no other field on
+  // the product is read or rewritten, so a concurrent edit elsewhere is safe.
+  if (!DRY) await patchDocument(PROJECT_ID, "products", doc.id, { category: target });
 }
-
-if (!DRY && pending > 0) await batch.commit();
 
 console.log(`\n${fixed} product(s) ${DRY ? "would be" : ""} moved to a real category.`);
 if (unknown.size) {
