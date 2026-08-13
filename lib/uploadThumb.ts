@@ -1,6 +1,7 @@
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { fireStorage } from "@/firebase/FirebaseConfig";
 import { makeThumbnail } from "@/utils/optimizeImage";
+import { IMAGE_UPLOAD_METADATA } from "@/lib/storageMeta";
 
 /**
  * Fail-safe thumbnail companion for a just-uploaded product image. Generates a
@@ -18,7 +19,7 @@ export async function uploadThumbSafe(
     const thumb = await makeThumbnail(optimized);
     if (!thumb) return {};
     const tRef = ref(fireStorage, `products/${folderId}/thumb-${safeName}`);
-    await uploadBytes(tRef, thumb);
+    await uploadBytes(tRef, thumb, IMAGE_UPLOAD_METADATA);
     return { thumbUrl: await getDownloadURL(tRef), thumbPath: tRef.fullPath };
   } catch (e) {
     console.warn("thumbnail skipped:", e);

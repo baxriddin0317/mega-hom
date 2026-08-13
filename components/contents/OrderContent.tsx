@@ -13,7 +13,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import { FiPrinter, FiTrash2, FiPlus, FiRotateCcw } from "react-icons/fi";
 import Loader from "../Loader";
 import { FormattedPrice } from '@/utils'
-import ProductImage, { firstImageUrl } from "@/components/ProductImage";
+import ProductImage, { firstThumbUrl } from "@/components/ProductImage";
 import ImportExport from "../admin/ImportExport";
 import ManualOrderModal from "../admin/ManualOrderModal";
 import ContactButtons from "../admin/ContactButtons";
@@ -496,7 +496,7 @@ const OrderContent = () => {
                                         height={80}
                                         className="w-20 h-20 object-cover rounded"
                                         fallbackClassName="w-20 h-20 rounded"
-                                        src={firstImageUrl(productImageUrl)}
+                                        src={firstThumbUrl(productImageUrl)}
                                         alt=""
                                       />
                                     </div>

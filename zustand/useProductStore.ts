@@ -15,9 +15,20 @@ function normalizeImages(raw: unknown): ImageT[] {
         return url ? { url, path: "" } : null;
       }
       if (x && typeof x === "object") {
-        const url = String((x as ImageT).url ?? "").trim();
+        const im = x as ImageT;
+        const url = String(im.url ?? "").trim();
         if (!url) return null;
-        return { url, path: String((x as ImageT).path ?? "") };
+        // thumbUrl/thumbPath MUST survive normalization — dropping them made
+        // firstThumbUrl() fall back to the full ≤1600px photo for every card,
+        // so the storefront grids shipped ~1.3 MB per tile instead of ~20 KB.
+        const thumbUrl = String(im.thumbUrl ?? "").trim();
+        const thumbPath = String(im.thumbPath ?? "").trim();
+        return {
+          url,
+          path: String(im.path ?? ""),
+          ...(thumbUrl ? { thumbUrl } : {}),
+          ...(thumbPath ? { thumbPath } : {}),
+        };
       }
       return null;
     })

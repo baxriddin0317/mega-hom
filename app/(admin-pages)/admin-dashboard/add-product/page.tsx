@@ -12,6 +12,7 @@ import useStockStore from "@/zustand/useStockStore";
 import { Switch } from "@headlessui/react";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { IMAGE_UPLOAD_METADATA } from "@/lib/storageMeta";
 import ProductImage from "@/components/ProductImage";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -82,7 +83,7 @@ const AddProductPage = () => {
         // uuid-prefix the name so two files both called "image.jpg" can't collide.
         const safeName = `${uuidv4().slice(0, 8)}-${optimized.name}`;
         const storageRef = ref(fireStorage, `products/${storageFileId}/${safeName}`);
-        await uploadBytes(storageRef, optimized);
+        await uploadBytes(storageRef, optimized, IMAGE_UPLOAD_METADATA);
         const downloadUrl = await getDownloadURL(storageRef);
         const thumb = await uploadThumbSafe(optimized, storageFileId, safeName);
         return { url: downloadUrl, path: storageRef.fullPath, ...thumb };

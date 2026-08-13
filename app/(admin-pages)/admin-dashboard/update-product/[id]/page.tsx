@@ -13,6 +13,7 @@ import useStockStore from "@/zustand/useStockStore";
 import { Switch } from "@headlessui/react";
 import { Timestamp, deleteField } from "firebase/firestore";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { IMAGE_UPLOAD_METADATA } from "@/lib/storageMeta";
 import ProductImage from "@/components/ProductImage";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -124,7 +125,7 @@ const UpdateProductContent = ({ params }: { params: Promise<{ id: string }> }) =
         const optimized = await optimizeImageForUpload(file);
         const safeName = `${uuidv4().slice(0, 8)}-${optimized.name}`;
         const storageRef = ref(fireStorage, `products/${folder}/${safeName}`);
-        await uploadBytes(storageRef, optimized);
+        await uploadBytes(storageRef, optimized, IMAGE_UPLOAD_METADATA);
         const downloadUrl = await getDownloadURL(storageRef);
         const thumb = await uploadThumbSafe(optimized, folder, safeName);
         return { url: downloadUrl, path: storageRef.fullPath, ...thumb };

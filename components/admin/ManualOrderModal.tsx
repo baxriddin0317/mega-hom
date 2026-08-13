@@ -7,7 +7,7 @@ import useProductStore from "@/zustand/useProductStore";
 import { useOrderStore } from "@/zustand/useOrderStore";
 import { ProductT } from "@/lib/types";
 import { FormattedPrice } from "@/utils";
-import ProductImage, { firstImageUrl } from "@/components/ProductImage";
+import ProductImage, { firstThumbUrl } from "@/components/ProductImage";
 
 interface Line {
   product: ProductT;
@@ -151,7 +151,7 @@ const ManualOrderModal = ({
                 >
                   <div className="relative aspect-square w-full overflow-hidden rounded mb-1 bg-slate-50">
                     <ProductImage
-                      src={firstImageUrl(p.productImageUrl)}
+                      src={firstThumbUrl(p.productImageUrl)}
                       alt={p.title}
                       fill
                       className="object-cover"
