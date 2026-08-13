@@ -14,10 +14,8 @@
  * SAFE TO RE-RUN: images that already have a thumbUrl are skipped (unless
  * --force). Nothing is deleted. Failures are per-image and never abort the run.
  *
- * Auth (either one):
- *   gcloud auth application-default login    # as megahomeweb@gmail.com
- *   — or —
- *   export GOOGLE_APPLICATION_CREDENTIALS=/path/to/serviceAccount.json
+ * Auth: reuses the gcloud login already on the machine (megahomeweb@gmail.com);
+ * override with GCLOUD_ACCOUNT=..., or GOOGLE_APPLICATION_CREDENTIALS=key.json.
  *
  * Usage:
  *   node scripts/backfill-image-thumbs.mjs --dry-run     # report only, no writes
@@ -25,11 +23,10 @@
  *   node scripts/backfill-image-thumbs.mjs --force       # regenerate existing thumbs too
  *   node scripts/backfill-image-thumbs.mjs --limit=10    # first N products (trial run)
  */
-import { initializeApp, applicationDefault, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
 import sharp from "sharp";
-import { readFileSync } from "node:fs";
+import { initAdmin } from "./lib/adminApp.mjs";
 
 const PROJECT_ID = "megahome-a139c";
 const BUCKET = "megahome-a139c.firebasestorage.app";
@@ -42,14 +39,8 @@ const DRY = args.includes("--dry-run");
 const FORCE = args.includes("--force");
 const LIMIT = Number(args.find((a) => a.startsWith("--limit="))?.split("=")[1] ?? 0);
 
-const keyPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-initializeApp({
-  credential: keyPath
-    ? cert(JSON.parse(readFileSync(keyPath, "utf8")))
-    : applicationDefault(),
-  projectId: PROJECT_ID,
-  storageBucket: BUCKET,
-});
+const { via } = initAdmin({ projectId: PROJECT_ID, storageBucket: BUCKET });
+console.log(`auth: ${via}`);
 
 const db = getFirestore();
 const bucket = getStorage().bucket();

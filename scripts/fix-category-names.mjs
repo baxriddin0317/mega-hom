@@ -11,17 +11,14 @@
  * category actually exists in the `categories` collection. Anything it doesn't
  * recognise is reported, never guessed at.
  *
- * Auth:
- *   gcloud auth application-default login    # as megahomeweb@gmail.com
- *   — or — export GOOGLE_APPLICATION_CREDENTIALS=/path/to/serviceAccount.json
+ * Auth: reuses the gcloud login already on the machine (megahomeweb@gmail.com).
  *
  * Usage:
  *   node scripts/fix-category-names.mjs --dry-run    # report only
  *   node scripts/fix-category-names.mjs              # apply
  */
-import { initializeApp, applicationDefault, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
-import { readFileSync } from "node:fs";
+import { initAdmin } from "./lib/adminApp.mjs";
 
 const PROJECT_ID = "megahome-a139c";
 const DRY = process.argv.includes("--dry-run");
@@ -32,13 +29,8 @@ const ALIASES = {
   "Xavfsizlik va Safar": "Havfsizlik va safar",
 };
 
-const keyPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-initializeApp({
-  credential: keyPath
-    ? cert(JSON.parse(readFileSync(keyPath, "utf8")))
-    : applicationDefault(),
-  projectId: PROJECT_ID,
-});
+const { via } = initAdmin({ projectId: PROJECT_ID });
+console.log(`auth: ${via}`);
 const db = getFirestore();
 
 const cats = await db.collection("categories").get();
