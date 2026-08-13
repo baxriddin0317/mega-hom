@@ -19,13 +19,21 @@ const FIRESTORE = "https://firestore.googleapis.com/v1";
 const STORAGE = "https://storage.googleapis.com/storage/v1";
 const STORAGE_UPLOAD = "https://storage.googleapis.com/upload/storage/v1";
 
-/** gcloud tokens last ~1h; re-shell a little early rather than track expiry. */
-const TOKEN_TTL_MS = 45 * 60 * 1000;
+/**
+ * gcloud hands back a token from its OWN cache, which may already be most of the
+ * way through its hour — so a long-lived local cache here expires mid-run. A
+ * full backfill hit `401 Invalid Credentials` on 81 of 192 images that way.
+ * Keep the cache short AND force a refresh on any 401 (see `call`).
+ */
+const TOKEN_TTL_MS = 5 * 60 * 1000;
 let cachedToken = null;
 let cachedAt = 0;
 
-export function accessToken(account = process.env.GCLOUD_ACCOUNT || "megahomeweb@gmail.com") {
-  if (cachedToken && Date.now() - cachedAt < TOKEN_TTL_MS) return cachedToken;
+export function accessToken(
+  account = process.env.GCLOUD_ACCOUNT || "megahomeweb@gmail.com",
+  { force = false } = {}
+) {
+  if (!force && cachedToken && Date.now() - cachedAt < TOKEN_TTL_MS) return cachedToken;
   try {
     cachedToken = execFileSync(
       "gcloud",
@@ -43,14 +51,22 @@ export function accessToken(account = process.env.GCLOUD_ACCOUNT || "megahomeweb
   }
 }
 
-async function call(url, init = {}) {
-  const res = await fetch(url, {
+async function send(url, init, token) {
+  return fetch(url, {
     ...init,
-    headers: {
-      Authorization: `Bearer ${accessToken()}`,
-      ...(init.headers ?? {}),
-    },
+    headers: { Authorization: `Bearer ${token}`, ...(init.headers ?? {}) },
   });
+}
+
+async function call(url, init = {}) {
+  let res = await send(url, init, accessToken());
+
+  // A run long enough to outlive the token used to fail every remaining image.
+  // Mint a fresh one and replay the request exactly once.
+  if (res.status === 401) {
+    res = await send(url, init, accessToken(undefined, { force: true }));
+  }
+
   if (!res.ok) {
     const body = await res.text().catch(() => "");
     throw new Error(`${init.method ?? "GET"} ${url.split("?")[0]} → ${res.status} ${body.slice(0, 300)}`);
